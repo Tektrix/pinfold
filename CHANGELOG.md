@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Keyboard accessibility for the sidebar folder tree: items are focusable with Tab, activatable with Enter/Space, and action buttons appear on focus.
+
+
 ## [1.0.1] - 2026-10-26
 
 ### Added
