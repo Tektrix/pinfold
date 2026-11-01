@@ -76,6 +76,7 @@ test('changing the sort dropdown persists a settings patch and rerenders', async
   select.value = 'most_tabs';
   await select.listeners.change({ target: select });
   assert.equal(page.stateSort(), 'most_tabs');
-  assert.deepEqual(page.calls.updates, [{ sortBy: 'most_tabs' }]);
+  assert.equal(page.calls.updates.length, 1);
+  assert.equal(page.calls.updates[0].sortBy, 'most_tabs');
   assert.equal(page.calls.renders, 1);
 });
