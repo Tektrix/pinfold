@@ -1,4 +1,10 @@
 const ExportImport = {
+    _pluralize(count, singular, plural = singular + 's') {
+      const fn = typeof pluralize === 'function'
+        ? pluralize
+        : require('./storage.js').pluralize;
+      return fn(count, singular, plural);
+    },
   MAX_IMPORT_CHARS: 20 * 1024 * 1024,
   MAX_IMPORT_TABS: 100000,
   MAX_TITLE_LENGTH: 1000,
@@ -41,7 +47,7 @@ const ExportImport = {
       const dateStr = new Date(group.createdAt).toLocaleDateString();
       const tabCount = group.tabs ? group.tabs.length : 0;
 
-      md += `## ${groupName} (${tabCount} tabs) - ${dateStr}\n`;
+      md += `## ${groupName} (${this._pluralize(tabCount, 'tab')}) - ${dateStr}\n`;
       if (group.tags && group.tags.length > 0) {
         md += `*Tags: ${group.tags.map(t => `#${t}`).join(', ')}*\n`;
       }

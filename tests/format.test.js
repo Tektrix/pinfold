@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { formatMemory, formatTimeAgo } = require('../utils/storage.js');
+const { formatMemory, formatTimeAgo, pluralize } = require('../utils/storage.js');
 
 test('formatTimeAgo handles relative-time boundaries', (t) => {
   const now = Date.now();
@@ -55,4 +55,10 @@ test('formatMemory handles zero, negative and unit boundaries', () => {
   cases.forEach(([memory, expected]) => {
     assert.strictEqual(formatMemory(memory), expected);
   });
+});
+
+test('pluralize handles zero, one, and multiple counts', () => {
+  assert.strictEqual(pluralize(0, 'tab'), 'tabs');
+  assert.strictEqual(pluralize(1, 'tab'), 'tab');
+  assert.strictEqual(pluralize(2, 'tab'), 'tabs');
 });

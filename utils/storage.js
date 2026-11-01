@@ -75,6 +75,11 @@ function formatMemory(mb) {
   return Math.round(mb) + ' MB';
 }
 
+// Added pluralize function
+function pluralize(count, singular, plural = singular + 's') {
+  return count === 1 ? singular : plural;
+}
+
 function formatTimeAgo(timestamp) {
   if (!timestamp) return '';
   const now = Date.now();
@@ -493,13 +498,14 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
   globalThis.generateId = generateId;
   globalThis.isSafeTabUrl = isSafeTabUrl;
   globalThis.formatMemory = formatMemory;
+  globalThis.pluralize = pluralize;
   globalThis.formatTimeAgo = formatTimeAgo;
   globalThis.formatFullDate = formatFullDate;
 }
