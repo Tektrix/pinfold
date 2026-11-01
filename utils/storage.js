@@ -1,5 +1,6 @@
 const DEFAULT_SETTINGS = {
   theme: 'system',
+  sortBy: 'newest',
   keepTabOnRestore: false,
   restoreInNewWindow: false,
   pinnedTabsBehavior: 'ignore',
