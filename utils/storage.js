@@ -250,6 +250,37 @@ const PinfoldStorage = {
     });
   },
 
+  // Reconcile a bulk restore in one locked write; preserve locked groups and
+  // tabs that the browser could not reopen.
+  async removeRestoredTabs(tabIds) {
+    if (!Array.isArray(tabIds) || tabIds.length === 0) return 0;
+    return withStorageLock(async () => {
+      const restoredIds = new Set(tabIds);
+      const groups = await this.getGroups();
+      const updatedGroups = [];
+      let removedCount = 0;
+
+      for (const group of groups) {
+        if (group.locked || !Array.isArray(group.tabs)) {
+          updatedGroups.push(group);
+          continue;
+        }
+        const remaining = group.tabs.filter(tab => !restoredIds.has(tab.id));
+        if (remaining.length === group.tabs.length) {
+          updatedGroups.push(group);
+          continue;
+        }
+        removedCount += group.tabs.length - remaining.length;
+        if (remaining.length > 0) {
+          updatedGroups.push({ ...group, tabs: remaining });
+        }
+      }
+
+      if (removedCount > 0) await this.saveGroups(updatedGroups);
+      return removedCount;
+    });
+  },
+
   async updateTabTitle(groupId, tabId, newTitle) {
     return withStorageLock(async () => {
       const groups = await this.getGroups();

@@ -118,6 +118,34 @@ test('removeTabsFromGroup only removes the given tabs', async () => {
   assert.deepStrictEqual(tabs, ['b']);
 });
 
+test('removeRestoredTabs only deletes opened tabs from unlocked groups', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      { id: 'open', locked: false, tabs: [{ id: 'a' }, { id: 'b' }] },
+      { id: 'locked', locked: true, tabs: [{ id: 'c' }] },
+      { id: 'empty', locked: false, tabs: [] },
+      { id: 'fully-restored', locked: false, tabs: [{ id: 'd' }] }
+    ]
+  });
+  const removed = await PinfoldStorage.removeRestoredTabs(['a', 'c', 'd', 'unknown']);
+  assert.strictEqual(removed, 2);
+  const groups = await PinfoldStorage.getGroups();
+  assert.deepStrictEqual(groups.map(g => g.id), ['open', 'locked', 'empty']);
+  assert.deepStrictEqual(groups[0].tabs.map(t => t.id), ['b']);
+  assert.deepStrictEqual(groups[1].tabs.map(t => t.id), ['c']);
+});
+
+test('removeRestoredTabs does not erase a newly saved tab during restore', async () => {
+  seedGroup(['a', 'b']);
+  await Promise.all([
+    PinfoldStorage.addIndividualTabs([{ url: 'https://new.example', title: 'New' }]),
+    PinfoldStorage.removeRestoredTabs(['t0'])
+  ]);
+  const groups = await PinfoldStorage.getGroups();
+  assert.ok(groups.some(g => g.tabs.some(t => t.url === 'https://new.example')));
+  assert.deepStrictEqual(groups.find(g => g.id === 'g1').tabs.map(t => t.id), ['t1']);
+});
+
 test('deleteFolder removes nested subfolders and moves their groups to root', async () => {
   store.load({
     [STORAGE_KEYS.FOLDERS]: [

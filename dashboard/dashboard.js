@@ -1148,6 +1148,39 @@ async function handleRestoreGroup(renderedGroup) {
     : `Restored ${openedIds.length} tabs`);
 }
 
+async function handleRestoreAll() {
+  const allTabs = state.groups.flatMap(g => (g.tabs || []).map(t => ({ id: t.id, url: t.url })));
+  if (allTabs.length === 0) return;
+  if (!confirm(`Restore all ${allTabs.length} tabs?`)) return;
+
+  let response;
+  try {
+    response = await chrome.runtime.sendMessage({
+      action: 'RESTORE_TABS',
+      tabs: allTabs,
+      options: { newWindow: true }
+    });
+  } catch (err) {
+    response = null;
+  }
+
+  if (!response || !response.success) {
+    showToast('Restore failed. Your tabs are still saved.');
+    return;
+  }
+
+  const openedIds = new Set(Array.isArray(response.openedIds) ? response.openedIds : []);
+  if (!state.settings?.keepTabOnRestore && openedIds.size > 0) {
+    await PinfoldStorage.removeRestoredTabs([...openedIds]);
+  }
+
+  await refreshData();
+  const failedCount = Array.isArray(response.failedIds) ? response.failedIds.length : 0;
+  showToast(failedCount > 0
+    ? `Restored ${openedIds.size} tabs. ${failedCount} could not be opened and were kept.`
+    : `Restored ${openedIds.size} tabs`);
+}
+
 function bindEventListeners() {
   document.getElementById('navAllTabs')?.addEventListener('click', () => {
     state.activeFilter = 'all';
@@ -1258,18 +1291,7 @@ function bindEventListeners() {
     renderDashboard();
   });
 
-  document.getElementById('btnRestoreAllEverywhere').addEventListener('click', async () => {
-    const allTabs = state.groups.reduce((acc, g) => acc.concat((g.tabs || []).map(t => ({ id: t.id, url: t.url }))), []);
-    if (allTabs.length === 0) return;
-    if (!confirm(`Restore all ${allTabs.length} tabs?`)) return;
-
-    chrome.runtime.sendMessage({
-      action: 'RESTORE_TABS',
-      tabs: allTabs,
-      options: { newWindow: true }
-    }).catch(() => showToast('Restore failed'));
-    showToast(`Restoring ${allTabs.length} tabs in a new window`);
-  });
+  document.getElementById('btnRestoreAllEverywhere').addEventListener('click', handleRestoreAll);
 
   document.getElementById('btnDeleteAllUnlocked').addEventListener('click', async () => {
     const unlocked = state.groups.filter(g => !g.locked);
