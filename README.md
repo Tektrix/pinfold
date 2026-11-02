@@ -40,7 +40,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 - Star items to add them to the **Favorites** filter.
 - Lock items to prevent them from being deleted.
 - Rename tabs and folders with the pencil buttons; group titles can be edited inline.
-- Sort by newest, oldest, most tabs, or name.
+- Sort by newest, oldest, most tabs, or name; the selected order is remembered across reloads.
 - Restore one item, a group, or everything. By default, restored tabs are removed from the list; you can choose to keep them instead. Locked items are always kept.
 - Dark, light, or system theme.
 

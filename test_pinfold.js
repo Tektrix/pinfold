@@ -160,6 +160,7 @@ cssFiles.forEach(file => {
 console.log('\n--- 7. Default Settings ---');
 const { DEFAULT_SETTINGS } = require('./utils/storage.js');
 assert(DEFAULT_SETTINGS.openOnNewTab === false, 'openOnNewTab is defined in DEFAULT_SETTINGS and defaults to false');
+assert(DEFAULT_SETTINGS.sortBy === 'newest', 'sortBy is defined in DEFAULT_SETTINGS and defaults to newest');
 assert(DEFAULT_SETTINGS.confirmTabDelete === true, 'confirmTabDelete is defined in DEFAULT_SETTINGS and defaults to true');
 assert(DEFAULT_SETTINGS.capturePreviews === false, 'Page previews (screenshots) are off by default');
 

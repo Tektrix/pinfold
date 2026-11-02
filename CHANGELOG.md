@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The dashboard now remembers the selected sort order across reloads, with a safe fallback for invalid stored values.
 - Importing text with no valid tabs, a cut-off JSON backup or unrelated JSON now shows an error and changes nothing. Before, Replace mode could delete every saved tab.
 - Ctrl/Cmd+K now focuses dashboard search on macOS as well as Windows/Linux, including with Caps Lock enabled.
 - The dashboard and Options page now follow OS theme changes live when System is selected.

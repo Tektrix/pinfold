@@ -1,4 +1,5 @@
 const ESTIMATED_MB_PER_TAB = 50;
+const VALID_SORT_ORDERS = new Set(['newest', 'oldest', 'most_tabs', 'title']);
 
 let state = {
   groups: [],
@@ -32,6 +33,8 @@ function renderStaticIcons() {
 async function loadSettingsAndApplyTheme() {
   state.settings = await PinfoldStorage.getSettings();
   state.viewMode = state.settings.viewMode || 'list';
+  state.sortBy = VALID_SORT_ORDERS.has(state.settings.sortBy) ? state.settings.sortBy : 'newest';
+  document.getElementById('sortSelect').value = state.sortBy;
   updateViewModeButtons();
   applyTheme(state.settings.theme);
 }
@@ -1281,9 +1284,12 @@ function bindEventListeners() {
     showToast('Switched to Cards view');
   });
 
-  document.getElementById('sortSelect').addEventListener('change', (e) => {
-    state.sortBy = e.target.value;
+  document.getElementById('sortSelect').addEventListener('change', async (e) => {
+    const sortBy = VALID_SORT_ORDERS.has(e.target.value) ? e.target.value : 'newest';
+    state.sortBy = sortBy;
+    e.target.value = sortBy;
     renderDashboard();
+    state.settings = await PinfoldStorage.updateSettings({ sortBy });
   });
 
   document.getElementById('btnRestoreAllEverywhere').addEventListener('click', handleRestoreAll);
