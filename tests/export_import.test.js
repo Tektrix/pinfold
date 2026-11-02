@@ -9,8 +9,10 @@ const sampleGroups = () => [
     id: 'grp_1', title: 'Docs', createdAt: 1720000000000, locked: true, starred: true,
     tags: ['react'], folderId: 'f1', secret: 'x',
     tabs: [
-      { id: 't1', title: 'React', url: 'https://react.dev/blog', pinned: true, createdAt: 1720000000000,
-        favIconUrl: 'https://evil.example/fav.png', previewImage: 'data:image/jpeg;base64,AAAA', memoryBytes: 123456 },
+      {
+        id: 't1', title: 'React', url: 'https://react.dev/blog', pinned: true, createdAt: 1720000000000,
+        favIconUrl: 'https://evil.example/fav.png', previewImage: 'data:image/jpeg;base64,AAAA', memoryBytes: 123456
+      },
       { id: 't2', title: 'Wiki', url: 'https://en.wikipedia.org/wiki/Foo_(bar)', pinned: false, createdAt: 1720000000000 }
     ]
   },
@@ -43,13 +45,15 @@ test('duplicate ids become unique', () => {
 
 test('dangerous URL schemes are dropped from JSON imports', () => {
   const res = ExportImport.parseImport(backup([
-    { title: 'Mixed', tabs: [
-      { title: 'ok', url: 'https://ok.com' },
-      { title: 'js', url: 'javascript:alert(1)' },
-      { title: 'data', url: 'data:text/html,<script>alert(1)</script>' },
-      { title: 'blob', url: 'blob:https://x.com/123' },
-      { title: 'junk', url: 'not a url' }
-    ] },
+    {
+      title: 'Mixed', tabs: [
+        { title: 'ok', url: 'https://ok.com' },
+        { title: 'js', url: 'javascript:alert(1)' },
+        { title: 'data', url: 'data:text/html,<script>alert(1)</script>' },
+        { title: 'blob', url: 'blob:https://x.com/123' },
+        { title: 'junk', url: 'not a url' }
+      ]
+    },
     { title: 'AllBad', tabs: [{ url: 'JavaScript:alert(1)' }] }
   ]));
   assert.strictEqual(res.groups.length, 1, 'group with only bad URLs is dropped');
@@ -74,7 +78,8 @@ test('dangerous URL schemes are dropped from OneTab imports', () => {
 
 test('non-string fields are coerced or dropped without throwing', () => {
   const res = ExportImport.parseImport(backup([
-    { title: { evil: true }, createdAt: 'yesterday', locked: 'false', starred: 1, tags: ['ok', 5, null, { a: 1 }],
+    {
+      title: { evil: true }, createdAt: 'yesterday', locked: 'false', starred: 1, tags: ['ok', 5, null, { a: 1 }],
       tabs: [
         { title: 12345, url: 'https://num-title.com', createdAt: NaN },
         { title: ['arr'], url: 'https://arr-title.com' },
@@ -82,7 +87,8 @@ test('non-string fields are coerced or dropped without throwing', () => {
         { title: 'num url', url: 42 },
         null,
         'string-tab'
-      ] },
+      ]
+    },
     null,
     { title: 'no tabs' }
   ]));
@@ -104,10 +110,12 @@ test('non-string fields are coerced or dropped without throwing', () => {
 });
 
 test('long titles are capped and overlong URLs dropped', () => {
-  const res = ExportImport.parseImport(backup([{ title: 'G', tabs: [
-    { title: 'a'.repeat(5000), url: 'https://ok.com' },
-    { title: 'long', url: 'https://x.com/' + 'a'.repeat(9000) }
-  ] }]));
+  const res = ExportImport.parseImport(backup([{
+    title: 'G', tabs: [
+      { title: 'a'.repeat(5000), url: 'https://ok.com' },
+      { title: 'long', url: 'https://x.com/' + 'a'.repeat(9000) }
+    ]
+  }]));
   assert.strictEqual(res.totalTabs, 1);
   assert.strictEqual(res.groups[0].tabs[0].title.length, 1000);
 });
@@ -156,6 +164,41 @@ test('Markdown URL with parentheses round-trips', () => {
   assert.ok(md.includes('(https://en.wikipedia.org/wiki/Foo_%28bar%29)'));
   const res = ExportImport.parseImport(md);
   assert.ok(allTabs(res.groups).some(t => t.url === 'https://en.wikipedia.org/wiki/Foo_(bar)' && t.title === 'Wiki'));
+});
+
+test('Markdown export -> import round trip preserves group titles with singular and plural tab counts', () => {
+  const src = [
+    {
+      id: 'grp_research',
+      title: 'Research',
+      createdAt: 1720000000000,
+      tabs: [
+        { id: 't1', title: 'Google', url: 'https://www.google.com/' }
+      ]
+    },
+    {
+      id: 'grp_development',
+      title: 'Development',
+      createdAt: 1720000100000,
+      tabs: [
+        { id: 't2', title: 'Github', url: 'https://github.com' },
+        { id: 't3', title: 'x', url: 'https://x.com' }
+      ]
+    }
+  ];
+  const markdown = ExportImport.exportToMarkdown(src);
+  assert.match(markdown, /## Research \(1 tab\)/);
+  assert.match(markdown, /## Development \(2 tabs\)/);
+
+  const res = ExportImport.parseImport(markdown);
+  assert.strictEqual(res.format, 'markdown');
+  assert.deepStrictEqual(
+    res.groups.map(group => group.title),
+    ['Research', 'Development']
+  );
+  res.groups.forEach(group => {
+    assert.doesNotMatch(group.title, /\(\d+\s+tabs?\)/i);
+  });
 });
 
 test('Markdown parser handles raw balanced parentheses', () => {
