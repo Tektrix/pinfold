@@ -34,3 +34,11 @@ jobs:
       # No dependencies and no lockfile, so there is no install step.
       - name: Run tests
         run: npm test
+
+      # Fails if manifest.json and package.json versions differ, or if a file
+      # referenced by the manifest or an HTML page would be left out of the zip.
+      - name: Build store package
+        run: npm run package
+
+      - name: List package contents
+        run: unzip -l dist/pinfold-*.zip
