@@ -742,7 +742,7 @@ function createOneTabGroupElement(group) {
     }
     if (state.settings?.confirmGroupDelete) {
       const storedGroup = state.groups.find(g => g.id === group.id) || group;
-      if (!confirm(`Delete this group of ${storedGroup.tabs.length} tabs?`)) return;
+      if (!confirm(`Delete this group of ${storedGroup.tabs.length} ${pluralize(storedGroup.tabs.length, 'tab')}?`)) return;
     }
     await PinfoldStorage.deleteGroup(group.id);
     await refreshData();
@@ -1142,14 +1142,14 @@ async function handleRestoreGroup(renderedGroup) {
   await refreshData();
   const failedCount = (response.failedIds || []).length;
   showToast(failedCount > 0
-    ? `Restored ${openedIds.length} tabs. ${failedCount} could not be opened and were kept.`
-    : `Restored ${openedIds.length} tabs`);
+    ? `Restored ${openedIds.length} ${pluralize(openedIds.length, 'tab')}. ${failedCount} ${pluralize(failedCount, 'tab')} could not be opened and ${failedCount === 1 ? 'was' : 'were'} kept.`
+    : `Restored ${openedIds.length} ${pluralize(openedIds.length, 'tab')}`);
 }
 
 async function handleRestoreAll() {
   const allTabs = state.groups.flatMap(g => (g.tabs || []).map(t => ({ id: t.id, url: t.url })));
   if (allTabs.length === 0) return;
-  if (!confirm(`Restore all ${allTabs.length} tabs?`)) return;
+  if (!confirm(`Restore all ${allTabs.length} ${pluralize(allTabs.length, 'tab')}?`)) return;
 
   let response;
   try {
@@ -1174,9 +1174,11 @@ async function handleRestoreAll() {
 
   await refreshData();
   const failedCount = Array.isArray(response.failedIds) ? response.failedIds.length : 0;
-  showToast(failedCount > 0
-    ? `Restored ${openedIds.size} tabs. ${failedCount} could not be opened and were kept.`
-    : `Restored ${openedIds.size} tabs`);
+  showToast(
+    failedCount > 0
+     ? `Restored ${openedIds.size} ${pluralize(openedIds.size, 'tab')}. ${failedCount} ${pluralize(failedCount, 'tab')} could not be opened and ${failedCount === 1 ? 'was' : 'were'} kept.`
+     : `Restored ${openedIds.size} ${pluralize(openedIds.size, 'tab')}`
+  );
 }
 
 function bindEventListeners() {
@@ -1300,11 +1302,11 @@ function bindEventListeners() {
       showToast('All groups are locked');
       return;
     }
-    if (!confirm(`Delete all ${unlocked.length} unlocked groups?`)) return;
+    if (!confirm(`Delete all ${unlocked.length} unlocked ${pluralize(unlocked.length, 'group')}?`)) return;
     // Recomputed from storage inside the lock, so tabs saved while the dialog was open survive.
     const deletedCount = await PinfoldStorage.deleteUnlockedGroups();
     await refreshData();
-    showToast(`${deletedCount} unlocked groups deleted`);
+    showToast(`${deletedCount} unlocked ${pluralize(deletedCount, 'group')} deleted`);
   });
 
   document.getElementById('btnOpenExportImport').addEventListener('click', () => {
@@ -1371,7 +1373,7 @@ function bindEventListeners() {
       await refreshData();
       closeExportImportModal();
       document.getElementById('importInputTextarea').value = '';
-      showToast(`Imported ${result.totalTabs} tabs!`);
+      showToast(`Imported ${result.totalTabs} ${pluralize(result.totalTabs, 'tab')}!`);
     } catch (err) {
       alert('Failed to import: ' + err.message);
     }

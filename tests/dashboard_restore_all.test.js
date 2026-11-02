@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { pluralize } = require('../utils/storage.js');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'dashboard.js'), 'utf8');
 
@@ -18,6 +19,7 @@ function setup({ groups = [], keep = false, response, reject = false, approve = 
   const calls = { requests: [], removals: [], confirmations: [], toasts: [], refreshes: 0 };
   const sandbox = {
     console,
+    pluralize,
     document: { addEventListener() {} },
     confirm(message) {
       calls.confirmations.push(message);
@@ -62,7 +64,7 @@ test('Restore All removes only confirmed opened tabs from unlocked groups', asyn
   assert.deepEqual(h.calls.requests[0].tabs.map(t => t.id), ['a', 'b', 'c']);
   assert.deepEqual(h.calls.removals, [['a', 'c']], 'one batch of confirmed ids');
   assert.equal(h.calls.refreshes, 1);
-  assert.equal(h.calls.toasts[0], 'Restored 2 tabs. 1 could not be opened and were kept.');
+  assert.equal(h.calls.toasts[0], 'Restored 2 tabs. 1 tab could not be opened and was kept.');
 });
 
 test('Restore All respects Keep restored tabs', async () => {

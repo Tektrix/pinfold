@@ -146,14 +146,14 @@ async function loadAndBindSettings() {
   document.getElementById('btnClearPreviews').addEventListener('click', async () => {
     if (!confirm('Delete all saved page previews? Your saved tabs are kept.')) return;
     const cleared = await PinfoldStorage.clearPreviewImages();
-    showToast(`Deleted ${cleared} page previews`);
+    showToast(`Deleted ${cleared} page ${pluralize(cleared, 'preview')}`);
   });
 
   document.getElementById('btnClearAll').addEventListener('click', async () => {
     const groups = await PinfoldStorage.getGroups();
     const totalTabs = groups.reduce((acc, g) => acc + (g.tabs ? g.tabs.length : 0), 0);
 
-    const firstConfirm = confirm(`Are you sure you want to delete ALL ${totalTabs} saved tabs? This action cannot be undone.`);
+    const firstConfirm = confirm(`Are you sure you want to delete ALL ${totalTabs} saved ${pluralize(totalTabs, 'tab')}? This action cannot be undone.`);
     if (!firstConfirm) return;
 
     const secondConfirm = prompt('Type DELETE to confirm complete wipe:');

@@ -52,7 +52,7 @@ function withStorageLock(fn) {
     return navigator.locks.request('pinfold-storage', fn);
   }
   const run = localLockChain.then(fn, fn);
-  localLockChain = run.catch(() => {});
+  localLockChain = run.catch(() => { });
   return run;
 }
 
@@ -76,11 +76,16 @@ function formatMemory(mb) {
   return Math.round(mb) + ' MB';
 }
 
+// "1 tab" vs "2 tabs" in user-facing messages
+function pluralize(count, singular, plural = singular + 's') {
+  return count === 1 ? singular : plural;
+}
+
 function formatTimeAgo(timestamp) {
   if (!timestamp) return '';
   const now = Date.now();
   const diffSec = Math.floor((now - timestamp) / 1000);
-  
+
   if (diffSec < 60) return 'Just now';
   const diffMin = Math.floor(diffSec / 60);
   if (diffMin < 60) return `${diffMin}m ago`;
@@ -89,7 +94,7 @@ function formatTimeAgo(timestamp) {
   const diffDay = Math.floor(diffHour / 24);
   if (diffDay === 1) return 'Yesterday';
   if (diffDay < 7) return `${diffDay}d ago`;
-  
+
   const date = new Date(timestamp);
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
 }
@@ -494,13 +499,14 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
   globalThis.generateId = generateId;
   globalThis.isSafeTabUrl = isSafeTabUrl;
   globalThis.formatMemory = formatMemory;
+  globalThis.pluralize = pluralize;
   globalThis.formatTimeAgo = formatTimeAgo;
   globalThis.formatFullDate = formatFullDate;
 }
