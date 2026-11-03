@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore All now removes only confirmed reopened tabs in one locked storage write when Keep on Restore is off; failed and locked tabs stay saved.
 - The dashboard theme toggle switches immediately when the system uses dark mode.
 - Tab, group & page preview counts now display the singular and plural form across the dashboard, options page and exports.
+- The popup and the dashboard's empty state now show the keyboard shortcuts the browser actually assigned, including macOS defaults and shortcuts changed at `chrome://extensions/shortcuts`, and hide shortcuts that are not assigned.
 
 ## [1.0.1] - 2026-10-26
 

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   await PinfoldStorage.migrateLegacyStorage();
   renderIcons();
+  await renderShortcuts();
   await loadAndApplyTheme();
   await loadStatistics();
   bindActionButtons();
@@ -43,6 +44,29 @@ function renderIcons() {
 
   const dashboardEl = document.getElementById('iconDashboard');
   if (dashboardEl) dashboardEl.innerHTML = SVG_ICONS.dashboard;
+}
+
+// The browser may use different defaults (Command on macOS), leave a shortcut
+// unassigned, or let the user change it, so show what it actually assigned.
+// getAll() also returns _execute_action, so match by command name, not position.
+async function renderShortcuts() {
+  let commands = [];
+  try {
+    commands = await chrome.commands.getAll();
+  } catch (err) {
+    console.error('Pinfold shortcuts error:', err);
+  }
+  showShortcut(document.getElementById('kbdCurrentTab'), commands, 'send_current_tab');
+  showShortcut(document.getElementById('kbdCollapseAll'), commands, 'send_all_tabs');
+  showShortcut(document.getElementById('kbdOpenDashboard'), commands, 'open_dashboard');
+}
+
+function showShortcut(kbd, commands, name) {
+  if (!kbd) return;
+  const command = commands.find(c => c.name === name);
+  const shortcut = (command && command.shortcut) || '';
+  kbd.textContent = shortcut;
+  kbd.hidden = !shortcut;
 }
 
 async function loadStatistics() {
