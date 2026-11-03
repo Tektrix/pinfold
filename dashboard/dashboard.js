@@ -16,6 +16,7 @@ let state = {
 document.addEventListener('DOMContentLoaded', async () => {
   await PinfoldStorage.migrateLegacyStorage();
   renderStaticIcons();
+  await renderEmptyStateShortcut();
   await loadSettingsAndApplyTheme();
   watchSystemTheme();
   await refreshData();
@@ -28,6 +29,21 @@ function renderStaticIcons() {
   document.getElementById('searchIcon').innerHTML = SVG_ICONS.search;
   document.getElementById('collapseWindowIcon').innerHTML = SVG_ICONS.layers;
   document.getElementById('headerSettingsIcon').innerHTML = SVG_ICONS.settings;
+}
+
+// Show the browser's actual "save all tabs" shortcut, or drop the hint when it is
+// unassigned. getAll() also returns _execute_action, so match by command name.
+async function renderEmptyStateShortcut() {
+  let commands = [];
+  try {
+    commands = await chrome.commands.getAll();
+  } catch (err) {
+    console.error('Pinfold shortcuts error:', err);
+  }
+  const command = commands.find(c => c.name === 'send_all_tabs');
+  const shortcut = (command && command.shortcut) || '';
+  document.getElementById('emptyShortcutKbd').textContent = shortcut;
+  document.getElementById('emptyShortcutHint').hidden = !shortcut;
 }
 
 async function loadSettingsAndApplyTheme() {
