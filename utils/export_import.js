@@ -317,9 +317,11 @@ const ExportImport = {
   _sanitizeImportedGroups(groups) {
     const result = [];
     let tabCount = 0;
-    groups.forEach((g, idx) => {
+    groups.forEach((g) => {
       if (!g || typeof g !== 'object' || !Array.isArray(g.tabs)) return;
-      const group = this._buildGroup(g.title, `Imported Group ${idx + 1}`, g);
+      // Groups saved from the browser have no title; the dashboard names them after
+      // their tab, so keep them untitled instead of baking in "Imported Group N".
+      const group = this._buildGroup(g.title, '', g);
       g.tabs.forEach((t) => {
         if (!t || typeof t !== 'object') return;
         const tab = this._buildTab(t.title, t.url, t.pinned, t.createdAt);

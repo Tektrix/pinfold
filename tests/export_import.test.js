@@ -153,6 +153,15 @@ test('JSON export -> import round trip keeps titles, urls and flags', () => {
   assert.strictEqual(res.groups[0].createdAt, 1720000000000);
 });
 
+test('untitled groups stay untitled after a JSON round trip', () => {
+  const src = [
+    { id: 'g1', title: '', tabs: [{ id: 't1', title: 'React', url: 'https://react.dev/' }] },
+    { id: 'g2', tabs: [{ id: 't2', title: 'Wiki', url: 'https://en.wikipedia.org/' }] }
+  ];
+  const res = ExportImport.parseImport(ExportImport.exportToJSON(src));
+  assert.deepStrictEqual(res.groups.map(g => g.title), ['', '']);
+});
+
 test('Pinfold-branded backups are accepted', () => {
   const res = ExportImport.parseImport(backup([{ title: 'G', tabs: [{ url: 'https://a.com' }] }], 'Pinfold'));
   assert.strictEqual(res.format, 'pinfold_json');
