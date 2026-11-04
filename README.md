@@ -6,6 +6,9 @@ A private, local-first tab manager for Chromium browsers.
 
 **Install:** [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/pinfold-private-tab-man/bhmddgchhmnnckoifdapdlfdimegnnej) · [Chrome Web Store](https://chromewebstore.google.com/detail/pinfold-private-tab-manag/jicdahcnjncmdcblfmceljcobkgckope) · [from source](#install)
 
+**Latest version:** [release notes](https://github.com/Tektrix/pinfold/releases/latest) · [changelog](CHANGELOG.md)
+
+[![Latest release](https://img.shields.io/github/v/release/Tektrix/pinfold?label=release)](https://github.com/Tektrix/pinfold/releases/latest)
 [![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
