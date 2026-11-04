@@ -1,6 +1,6 @@
 # Pinfold store submission kit
 
-Copy-paste text for the **Chrome Web Store** (Developer Dashboard) and **Microsoft Edge Add-ons** (Partner Center), for Pinfold 1.0.1.
+Copy-paste text for the **Chrome Web Store** (Developer Dashboard) and **Microsoft Edge Add-ons** (Partner Center), for Pinfold 1.0.2.
 
 Store text fields don't render Markdown, so everything inside a fenced block is plain text you can paste as it is. Field names and limits come from the official docs listed in [Sources](#sources). Anything those docs don't state is marked **(unconfirmed)**. Check those items against the live dashboard.
 
@@ -265,21 +265,21 @@ A two-minute path that covers every permission. It is the same as the Edge notes
 ## 7. Steps only the owner can do
 
 **Before either store**
-1. Build the package with `npm run package`, which produces `dist/pinfold-1.0.1.zip`. Unzip it once and check that `manifest.json` sits at the root of the zip.
+1. Build the package with `npm run package`, which produces `dist/pinfold-1.0.2.zip`. Unzip it once and check that `manifest.json` sits at the root of the zip.
 
 **Chrome Web Store**
 1. Sign in to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole) with the Google account that will own the listing. Its email can't be changed later.
 2. Turn on 2-Step Verification for that Google account. The CWS program policies require it before publishing or updating.
 3. Accept the developer agreement and pay the **one-time registration fee**. The current docs don't state the amount. Google has historically charged **US$5**, so confirm on the registration screen.
 4. On the Account page, set the **publisher name**, **verify the contact email** (click the link sent to it), and answer the **trader / non-trader** declaration. A trader's name, address and phone number are shown publicly.
-5. Click **Add new item** and upload `dist/pinfold-1.0.1.zip`.
+5. Click **Add new item** and upload `dist/pinfold-1.0.2.zip`.
 6. Fill in **Store listing** (sections 1, 2 and 6), **Privacy** (section 3) and **Distribution** (Free, all regions, Public). Optionally fill in **Test instructions** (section 5).
 7. Click **Submit for review**. Deferred publishing is optional.
 
 **Microsoft Edge Add-ons** (no registration fee)
 1. Sign in to [Partner Center](https://partner.microsoft.com/dashboard/microsoftedge/public/login) with a personal Microsoft account (MSA), or create one with your GitHub account. Work or school accounts can't register.
 2. Complete the Edge Developer Account Registration: country/region (read-only afterwards), account type **Individual** (can't be changed later), publisher display name (50 characters max), contact info, and accept the App Developer Agreement. Wait for the confirmation email.
-3. Click **Create new extension** and upload `dist/pinfold-1.0.1.zip`.
+3. Click **Create new extension** and upload `dist/pinfold-1.0.2.zip`.
 4. Fill in Availability, Properties, Privacy and Store listings (section 4), click **Publish**, paste the **Notes for certification**, and click **Publish** again. Certification can take up to 7 business days.
 
 ---

@@ -1,6 +1,6 @@
 {
   "name": "pinfold",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Private, local-first tab manager for Chromium browsers",
   "license": "MIT",

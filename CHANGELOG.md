@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-04
+
 ### Added
 
 - Bigger page previews: the hover preview is larger and no longer cropped as tightly, it also appears when hovering a card's thumbnail in Cards view, and an expand button on each card opens the full screenshot in a window that closes with Escape, the close button or a click outside it.
@@ -71,6 +73,7 @@ First public, open-source release.
 - Strict extension Content Security Policy; incognito is not allowed.
 - Import hardening: imported items get fresh ids, URLs are limited to an allow-list of schemes, fields are type-coerced and size-limited, and ids are escaped in HTML.
 
-[Unreleased]: https://github.com/Tektrix/pinfold/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Tektrix/pinfold/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/Tektrix/pinfold/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Tektrix/pinfold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Tektrix/pinfold/releases/tag/v1.0.0
