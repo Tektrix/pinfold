@@ -375,6 +375,7 @@ function createTreeGroupLeaf(group) {
   const leafItem = document.createElement('div');
   const isGroupActive = state.activeFilter === `group:${group.id}`;
   leafItem.className = `tree-node-item ${isGroupActive ? 'active' : ''}`;
+  leafItem.dataset.groupId = group.id;
   leafItem.draggable = true;
 
   const tabCount = group.tabs ? group.tabs.length : 0;
@@ -397,6 +398,7 @@ function createTreeGroupLeaf(group) {
     ${iconHtml}
     <span class="tree-node-label" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
     <button class="tree-mini-edit-btn btn-edit-tree-leaf" title="Edit name">${SVG_ICONS.edit}</button>
+    <button class="tree-mini-edit-btn tree-mini-delete-btn btn-delete-tree-leaf" title="Delete" aria-label="Delete ${escapeHtml(name)}">${SVG_ICONS.trash}</button>
   `;
 
   attachFaviconErrorHandlers(leafItem);
@@ -418,6 +420,11 @@ function createTreeGroupLeaf(group) {
     });
   }
 
+  leafItem.querySelector('.btn-delete-tree-leaf').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await deleteGroupFromSidebar(group.id);
+  });
+
   leafItem.addEventListener('click', () => {
     state.activeFilter = `group:${group.id}`;
     document.getElementById('currentViewTitle').textContent = name;
@@ -436,6 +443,47 @@ function createTreeGroupLeaf(group) {
   });
 
   return leafItem;
+}
+
+// Deletes a saved tab (or group) picked in the sidebar, with the same confirmation the
+// tab list uses. If it was the selected item, the next one in the sidebar gets selected
+// so pressing Delete again keeps working.
+async function deleteGroupFromSidebar(groupId) {
+  const group = state.groups.find(g => g.id === groupId);
+  if (!group) return;
+  const tabCount = group.tabs ? group.tabs.length : 0;
+  if (group.locked) {
+    showToast(tabCount === 1 ? 'Unlock this tab before deleting' : 'Unlock this group before deleting');
+    return;
+  }
+  if (tabCount === 1) {
+    if (state.settings?.confirmTabDelete !== false && !confirm('Delete this tab?')) return;
+  } else if (state.settings?.confirmGroupDelete) {
+    if (!confirm(`Delete this group of ${tabCount} ${pluralize(tabCount, 'tab')}?`)) return;
+  }
+
+  const wasSelected = state.activeFilter === `group:${groupId}`;
+  const leaves = [...document.querySelectorAll('#treeViewContainer .tree-node-item[data-group-id]')];
+  const idx = leaves.findIndex(el => el.dataset.groupId === groupId);
+  const nextLeaf = idx === -1 ? null : (leaves[idx + 1] || leaves[idx - 1] || null);
+  const nextId = nextLeaf ? nextLeaf.dataset.groupId : null;
+
+  const removed = await PinfoldStorage.deleteGroup(groupId);
+  if (!removed) {
+    showToast('Could not delete. It may be locked.');
+    return;
+  }
+  if (wasSelected) {
+    state.activeFilter = 'all';
+    document.getElementById('currentViewTitle').textContent = 'All Tabs';
+  }
+  await refreshData();
+  showToast(tabCount === 1 ? 'Tab deleted' : 'Group deleted');
+
+  if (wasSelected && nextId) {
+    const next = document.querySelector(`#treeViewContainer .tree-node-item[data-group-id="${CSS.escape(nextId)}"]`);
+    if (next) next.click();
+  }
 }
 
 function setupTreeDropTarget(element, targetFolderId) {
@@ -1341,6 +1389,13 @@ function bindEventListeners() {
     if (((e.key === '/' && !typingInField) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
       e.preventDefault();
       searchInput.focus();
+    } else if ((e.key === 'Delete' || (e.key === 'Backspace' && /Mac/i.test(navigator.platform))) &&
+               !typingInField && !e.repeat && state.activeFilter.startsWith('group:') &&
+               document.getElementById('previewModal').classList.contains('hidden') &&
+               document.getElementById('exportImportModal').classList.contains('hidden')) {
+      // Delete (or the Mac delete key) removes the tab selected in the sidebar
+      e.preventDefault();
+      deleteGroupFromSidebar(state.activeFilter.slice('group:'.length));
     } else if (e.key === 'Escape') {
       if (!document.getElementById('previewModal').classList.contains('hidden')) {
         closePreviewModal();

@@ -309,3 +309,16 @@ body {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* Scrollbars follow Pinfold's theme, not the operating system's */
+html,
+body {
+  color-scheme: dark;
+  scrollbar-color: #4A4A4E transparent;
+}
+
+html:has(body[data-theme="light"]),
+body[data-theme="light"] {
+  color-scheme: light;
+  scrollbar-color: #C7C7CC transparent;
+}
