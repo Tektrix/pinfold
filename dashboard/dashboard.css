@@ -1700,3 +1700,91 @@ body[data-theme="light"] .tab-hover-card {
 .hidden {
   display: none !important;
 }
+/* Larger hover card when the tab has a saved page preview */
+.tab-hover-card.has-preview {
+  width: 420px;
+}
+
+.tab-hover-card.has-preview .hover-card-body {
+  height: auto;
+  aspect-ratio: 16 / 10;
+}
+
+/* Expand button on a card's page preview */
+.card-expand-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background-color 0.12s ease;
+}
+
+.tab-card-entry:hover .card-expand-btn,
+.card-expand-btn:focus-visible {
+  opacity: 1;
+}
+
+.card-expand-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.card-expand-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Full-size page preview */
+.preview-modal-card {
+  max-width: min(1200px, 92vw);
+  max-height: 90vh;
+}
+
+.preview-modal-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-modal-heading .modal-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-modal-card .modal-header {
+  gap: 12px;
+}
+
+.preview-modal-domain {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.preview-modal-body {
+  min-height: 0;
+  overflow: auto;
+  background-color: var(--bg-input);
+  display: flex;
+  justify-content: center;
+}
+
+.preview-modal-body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(90vh - 70px);
+  object-fit: contain;
+  object-position: top center;
+}

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Bigger page previews: the hover preview is larger and no longer cropped as tightly, it also appears when hovering a card's thumbnail in Cards view, and an expand button on each card opens the full screenshot in a window that closes with Escape, the close button or a click outside it.
+
 ### Fixed
 
 - The dashboard now remembers the selected sort order across reloads, with a safe fallback for invalid stored values.

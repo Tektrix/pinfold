@@ -834,6 +834,7 @@ function createTabCardElement(group, tab) {
   card.innerHTML = `
     <div class="tab-card-preview-wrap">
       ${thumbnailHtml}
+      ${tab.previewImage ? `<button class="card-expand-btn btn-expand-preview" title="View larger preview" aria-label="View larger preview">${SVG_ICONS.expand}</button>` : ''}
     </div>
     <div class="tab-card-info">
       <div class="tab-card-header">
@@ -894,9 +895,41 @@ function createTabCardElement(group, tab) {
     });
   }
 
-  card.querySelector('.tab-card-preview-wrap').addEventListener('click', async () => {
+  const previewWrap = card.querySelector('.tab-card-preview-wrap');
+  previewWrap.addEventListener('click', async () => {
+    hideHoverCard();
     await handleOpenTab(group.id, tab, !state.settings?.keepTabOnRestore);
   });
+
+  const expandBtn = card.querySelector('.btn-expand-preview');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideHoverCard();
+      openPreviewModal(tab, expandBtn);
+    });
+
+    // A bigger floating preview while the pointer rests on the thumbnail
+    let hoverTimer = null;
+    previewWrap.addEventListener('mouseenter', (e) => {
+      hoverTimer = setTimeout(() => showHoverCard(tab, e), 300);
+    });
+    previewWrap.addEventListener('mousemove', (e) => {
+      updateHoverCardPosition(e);
+    });
+    previewWrap.addEventListener('mouseleave', () => {
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hideHoverCard();
+    });
+    expandBtn.addEventListener('mouseenter', () => {
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hideHoverCard();
+    });
+    card.addEventListener('dragstart', () => {
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hideHoverCard();
+    });
+  }
   card.querySelector('.tab-card-info').addEventListener('click', async () => {
     await handleOpenTab(group.id, tab, !state.settings?.keepTabOnRestore);
   });
@@ -1248,7 +1281,9 @@ function bindEventListeners() {
       e.preventDefault();
       searchInput.focus();
     } else if (e.key === 'Escape') {
-      if (!document.getElementById('exportImportModal').classList.contains('hidden')) {
+      if (!document.getElementById('previewModal').classList.contains('hidden')) {
+        closePreviewModal();
+      } else if (!document.getElementById('exportImportModal').classList.contains('hidden')) {
         closeExportImportModal();
       } else if (searchInput === document.activeElement) {
         searchInput.blur();
@@ -1331,6 +1366,11 @@ function bindEventListeners() {
   document.getElementById('btnCloseModal').addEventListener('click', closeExportImportModal);
   document.getElementById('exportImportModal').addEventListener('click', (e) => {
     if (e.target.id === 'exportImportModal') closeExportImportModal();
+  });
+
+  document.getElementById('btnClosePreviewModal').addEventListener('click', closePreviewModal);
+  document.getElementById('previewModal').addEventListener('click', (e) => {
+    if (e.target.id === 'previewModal') closePreviewModal();
   });
 
   document.querySelectorAll('.modal-nav-tab').forEach(tabBtn => {
@@ -1457,6 +1497,7 @@ function showHoverCard(tab, event) {
   document.getElementById('hoverCardDomain').textContent = domain;
 
   const bodyEl = document.getElementById('hoverCardBody');
+  card.classList.toggle('has-preview', !!tab.previewImage);
   if (tab.previewImage) {
     bodyEl.innerHTML = `<img src="${escapeHtml(tab.previewImage)}" alt="Tab preview" />`;
   } else {
@@ -1476,8 +1517,8 @@ function updateHoverCardPosition(e) {
   const card = document.getElementById('tabHoverCard');
   if (!card || card.classList.contains('hidden')) return;
 
-  const cardWidth = 270;
-  const cardHeight = 220;
+  const cardWidth = card.offsetWidth || 270;
+  const cardHeight = card.offsetHeight || 220;
   const offset = 14;
 
   let left = e.clientX + offset;
@@ -1493,6 +1534,31 @@ function updateHoverCardPosition(e) {
 
   card.style.left = `${Math.max(10, left)}px`;
   card.style.top = `${Math.max(10, top)}px`;
+}
+
+let previewModalOpener = null;
+
+function openPreviewModal(tab, opener) {
+  if (!tab.previewImage) return;
+  const domain = extractHostname(tab.url) || tab.url;
+  const title = tab.title || tab.url || 'Untitled Tab';
+  document.getElementById('previewModalTitle').textContent = title;
+  document.getElementById('previewModalDomain').textContent = domain;
+  const img = document.getElementById('previewModalImage');
+  img.src = tab.previewImage;
+  img.alt = `Preview of ${title}`;
+  previewModalOpener = opener || null;
+  document.getElementById('previewModal').classList.remove('hidden');
+  document.getElementById('btnClosePreviewModal').focus();
+}
+
+function closePreviewModal() {
+  const modal = document.getElementById('previewModal');
+  if (modal.classList.contains('hidden')) return;
+  modal.classList.add('hidden');
+  document.getElementById('previewModalImage').removeAttribute('src');
+  if (previewModalOpener && previewModalOpener.isConnected) previewModalOpener.focus();
+  previewModalOpener = null;
 }
 
 function hideHoverCard() {
