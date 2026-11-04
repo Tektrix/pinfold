@@ -428,9 +428,11 @@ async function openDashboardInNewTab(tabId) {
   return false;
 }
 
+// Chrome sets openerTabId on tabs opened with the "+" button or Ctrl+T (it remembers the
+// tab you came from), so an opener must not stop the redirect: only the URL matters.
 chrome.tabs.onCreated.addListener(async (tab) => {
   try {
-    if (tab.openerTabId || !tab.id) return;
+    if (!tab.id) return;
     if (!isNewTabUrl(tab.pendingUrl) && !isNewTabUrl(tab.url)) return;
 
     const settings = await PinfoldStorage.getSettings();
@@ -444,7 +446,6 @@ chrome.tabs.onCreated.addListener(async (tab) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   try {
     if (!isNewTabUrl(changeInfo.url)) return;
-    if (tab && tab.openerTabId) return;
 
     const settings = await PinfoldStorage.getSettings();
     if (!settings.openOnNewTab) return;

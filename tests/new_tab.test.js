@@ -59,7 +59,7 @@ test('other errors are not retried', async () => {
   assert.equal(sw.updates.length, 1);
 });
 
-test('nothing happens when the setting is off, for other pages, or for tabs opened by a page', async () => {
+test('nothing happens when the setting is off, or for other pages', async () => {
   const off = loadServiceWorker({ openOnNewTab: false });
   await off.onCreated({ id: 7, pendingUrl: 'chrome://newtab/' });
   await off.onUpdated(7, { url: 'chrome://newtab/' }, {});
@@ -67,10 +67,17 @@ test('nothing happens when the setting is off, for other pages, or for tabs open
 
   const on = loadServiceWorker();
   await on.onCreated({ id: 7, pendingUrl: 'https://example.com/' });
-  await on.onCreated({ id: 8, pendingUrl: 'chrome://newtab/', openerTabId: 3 });
   await on.onUpdated(9, { status: 'loading' }, {});
   await on.onUpdated(9, { url: 'https://example.com/' }, {});
   assert.equal(on.updates.length, 0);
+});
+
+test('a "+" or Ctrl+T tab opens the dashboard even though Chrome gives it an opener tab', async () => {
+  const sw = loadServiceWorker();
+  await sw.onCreated({ id: 8, pendingUrl: 'chrome://newtab/', openerTabId: 3 });
+  assert.equal(sw.updates.length, 1);
+  assert.equal(sw.updates[0].tabId, 8);
+  assert.equal(sw.updates[0].url, DASHBOARD);
 });
 
 test('a tab that navigates to the new tab page also opens the dashboard', async () => {
