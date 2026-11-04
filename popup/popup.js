@@ -4,8 +4,108 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderShortcuts();
   await loadAndApplyTheme();
   await loadStatistics();
+  await renderSaveTo();
   bindActionButtons();
 });
+
+// Where the next save goes. Resets to "All tabs" every time the popup opens, so tabs
+// never land in a folder by surprise. kind: 'none' | 'folder' | 'more' | 'new'
+let saveTarget = { kind: 'none', folderId: null };
+
+function folderPath(folder, byId) {
+  const parts = [];
+  const seen = new Set();
+  let current = folder;
+  while (current && !seen.has(current.id)) {
+    seen.add(current.id);
+    parts.unshift(current.title || 'Untitled folder');
+    current = current.parentId ? byId.get(current.parentId) : null;
+  }
+  return parts.join(' / ');
+}
+
+async function renderSaveTo() {
+  const chipsEl = document.getElementById('saveToChips');
+  if (!chipsEl) return;
+  let folders = [];
+  let settings = {};
+  try {
+    [folders, settings] = await Promise.all([PinfoldStorage.getFolders(), PinfoldStorage.getSettings()]);
+  } catch (err) {
+    console.error('Pinfold folders error:', err);
+  }
+  const byId = new Map(folders.map(f => [f.id, f]));
+  const recent = sortFoldersByRecentUse(folders).slice(0, 3);
+
+  const chips = [{ kind: 'none', label: 'All tabs', title: 'Save without a folder' }];
+  recent.forEach(f => chips.push({ kind: 'folder', folderId: f.id, label: f.title || 'Untitled folder', title: folderPath(f, byId) }));
+  chips.push({ kind: 'new', label: '+ New folder', title: 'Save into a new folder' });
+  if (folders.length > recent.length) chips.push({ kind: 'more', label: 'More…', title: 'Choose another folder' });
+
+  chipsEl.textContent = '';
+  chips.forEach(chip => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'save-to-chip';
+    btn.textContent = chip.label;
+    btn.title = chip.title;
+    btn.dataset.kind = chip.kind;
+    if (chip.folderId) btn.dataset.folderId = chip.folderId;
+    btn.addEventListener('click', () => selectSaveTarget(chip.kind, chip.folderId || null));
+    chipsEl.appendChild(btn);
+  });
+
+  const select = document.getElementById('saveToFolderSelect');
+  select.textContent = '';
+  folders
+    .map(f => ({ id: f.id, path: folderPath(f, byId) }))
+    .sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }))
+    .forEach(f => {
+      const option = document.createElement('option');
+      option.value = f.id;
+      option.textContent = f.path;
+      select.appendChild(option);
+    });
+
+  document.getElementById('saveToNote').dataset.enabled = settings.collapseAllIntoNewFolder === true ? 'true' : 'false';
+  selectSaveTarget('none', null);
+}
+
+function selectSaveTarget(kind, folderId) {
+  saveTarget = { kind, folderId };
+  document.querySelectorAll('.save-to-chip').forEach(btn => {
+    const pressed = btn.dataset.kind === kind && (kind !== 'folder' || btn.dataset.folderId === folderId);
+    btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  });
+
+  const input = document.getElementById('saveToNewFolderInput');
+  input.hidden = kind !== 'new';
+  if (kind === 'new') {
+    if (!input.value) input.value = defaultFolderName('Tabs');
+    input.focus();
+    input.select();
+  }
+
+  const select = document.getElementById('saveToFolderSelect');
+  select.hidden = kind !== 'more';
+  if (kind === 'more') select.focus();
+
+  const note = document.getElementById('saveToNote');
+  note.hidden = !(kind === 'none' && note.dataset.enabled === 'true');
+}
+
+function getSaveOptions() {
+  if (saveTarget.kind === 'folder' && saveTarget.folderId) return { folderId: saveTarget.folderId };
+  if (saveTarget.kind === 'more') {
+    const value = document.getElementById('saveToFolderSelect').value;
+    return value ? { folderId: value } : {};
+  }
+  if (saveTarget.kind === 'new') {
+    const title = document.getElementById('saveToNewFolderInput').value.trim();
+    return { newFolderTitle: title || defaultFolderName('Tabs') };
+  }
+  return {};
+}
 
 async function loadAndApplyTheme() {
   try {
@@ -145,7 +245,7 @@ async function triggerCollapse(scope) {
     const currentWin = await chrome.windows.getLastFocused();
     chrome.runtime.sendMessage({
       action: 'COLLAPSE_TABS',
-      options: { scope, windowId: currentWin ? currentWin.id : undefined }
+      options: { scope, windowId: currentWin ? currentWin.id : undefined, ...getSaveOptions() }
     });
     window.close();
   } catch (err) {

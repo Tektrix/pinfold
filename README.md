@@ -30,6 +30,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 **Saving tabs**
 - Save tabs from the toolbar popup, the right-click menu, or keyboard shortcuts.
 - Choose what to save: all tabs in the window, the current tab, tabs to the left, tabs to the right, or all tabs except the active one.
+- Choose where to save from the popup: a recent folder, a new folder, or any other folder. Tabs saved without a folder can be filed from the dashboard right after saving, and an optional setting puts each Collapse All into its own new folder.
 - Pinned tabs are left open by default (configurable).
 - Excluded domains are never saved by the multi-tab actions. An entry like `example.com` matches that domain and its subdomains; an entry with a port, like `localhost:3000`, matches that host and port exactly.
 - Incognito tabs are never saved.

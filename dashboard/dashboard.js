@@ -1,5 +1,7 @@
 const ESTIMATED_MB_PER_TAB = 50;
 const VALID_SORT_ORDERS = new Set(['newest', 'oldest', 'most_tabs', 'title']);
+// How long after saving the dashboard still offers to file unfiled tabs
+const JUST_SAVED_WINDOW_MS = 30 * 60 * 1000;
 
 let state = {
   groups: [],
@@ -9,6 +11,7 @@ let state = {
   viewMode: 'list',
   searchQuery: '',
   sortBy: 'newest',
+  lastSave: null,
   draggedTabInfo: null,
   draggedGroupInfo: null
 };
@@ -85,7 +88,62 @@ function applyTheme(theme) {
 async function refreshData() {
   state.groups = await PinfoldStorage.getGroups();
   state.folders = await PinfoldStorage.getFolders();
+  state.lastSave = await PinfoldStorage.getLastSave();
   renderDashboard();
+}
+
+// Groups from the latest unfiled save that still exist and are still unfiled
+function getJustSavedGroups() {
+  const lastSave = state.lastSave;
+  if (!lastSave || !Array.isArray(lastSave.groupIds)) return [];
+  if (!lastSave.savedAt || Date.now() - lastSave.savedAt > JUST_SAVED_WINDOW_MS) return [];
+  const ids = new Set(lastSave.groupIds);
+  return state.groups.filter(g => ids.has(g.id) && !g.folderId);
+}
+
+function renderJustSavedBanner() {
+  const banner = document.getElementById('justSavedBanner');
+  const groups = getJustSavedGroups();
+  if (groups.length === 0) {
+    banner.classList.add('hidden');
+    return;
+  }
+  const tabCount = groups.reduce((acc, g) => acc + (g.tabs ? g.tabs.length : 0), 0);
+  document.getElementById('justSavedText').textContent =
+    `${tabCount} ${pluralize(tabCount, 'tab')} saved ${formatTimeAgo(state.lastSave.savedAt).toLowerCase()}`;
+
+  const select = document.getElementById('justSavedMoveSelect');
+  select.textContent = '';
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Move to folder…';
+  select.appendChild(placeholder);
+  sortFoldersByRecentUse(state.folders).forEach(f => {
+    const option = document.createElement('option');
+    option.value = f.id;
+    option.textContent = f.title || 'Untitled folder';
+    select.appendChild(option);
+  });
+  select.hidden = state.folders.length === 0;
+  banner.classList.remove('hidden');
+}
+
+function markJustSavedRows() {
+  const ids = new Set(getJustSavedGroups().map(g => g.id));
+  if (ids.size === 0) return;
+  document.querySelectorAll('#groupsContainer .single-tab-row, #groupsContainer .tab-card-entry').forEach(el => {
+    if (ids.has(el.dataset.groupId)) el.classList.add('just-saved');
+  });
+}
+
+async function fileJustSavedGroups(folderId, folderTitle) {
+  const groups = getJustSavedGroups();
+  if (groups.length === 0) return;
+  const tabCount = groups.reduce((acc, g) => acc + (g.tabs ? g.tabs.length : 0), 0);
+  await PinfoldStorage.assignGroupsToFolder(groups.map(g => g.id), folderId);
+  await PinfoldStorage.clearLastSave();
+  await refreshData();
+  showToast(`Moved ${tabCount} ${pluralize(tabCount, 'tab')} to ${folderTitle}`);
 }
 
 async function copyUrlWithFeedback(buttonEl, url) {
@@ -122,6 +180,7 @@ function renderDashboard() {
   renderTreeView();
 
   if (state.groups.length === 0) {
+    document.getElementById('justSavedBanner').classList.add('hidden');
     document.getElementById('emptyState').classList.remove('hidden');
     document.getElementById('groupsContainer').classList.add('hidden');
     return;
@@ -129,7 +188,9 @@ function renderDashboard() {
 
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('groupsContainer').classList.remove('hidden');
+  renderJustSavedBanner();
   renderGroupsList();
+  markJustSavedRows();
 }
 
 function updateSidebarCountsAndMemory() {
@@ -1368,6 +1429,23 @@ function bindEventListeners() {
     if (e.target.id === 'exportImportModal') closeExportImportModal();
   });
 
+  document.getElementById('justSavedMoveSelect').addEventListener('change', async (e) => {
+    const folder = state.folders.find(f => f.id === e.target.value);
+    if (folder) await fileJustSavedGroups(folder.id, folder.title || 'Untitled folder');
+  });
+  document.getElementById('btnJustSavedNewFolder').addEventListener('click', async () => {
+    const title = prompt('New folder name:', defaultFolderName('Tabs'));
+    if (title === null || !title.trim()) return;
+    const folder = await PinfoldStorage.addFolder(title.trim().slice(0, 100));
+    await fileJustSavedGroups(folder.id, folder.title);
+  });
+  document.getElementById('btnJustSavedDismiss').addEventListener('click', async () => {
+    await PinfoldStorage.clearLastSave();
+    state.lastSave = null;
+    renderJustSavedBanner();
+    document.querySelectorAll('#groupsContainer .just-saved').forEach(el => el.classList.remove('just-saved'));
+  });
+
   document.getElementById('btnClosePreviewModal').addEventListener('click', closePreviewModal);
   document.getElementById('previewModal').addEventListener('click', (e) => {
     if (e.target.id === 'previewModal') closePreviewModal();
@@ -1466,7 +1544,7 @@ function setupStorageListener() {
       await loadSettingsAndApplyTheme();
       renderDashboard();
     }
-    if (changes[STORAGE_KEYS.GROUPS] || changes[STORAGE_KEYS.FOLDERS]) {
+    if (changes[STORAGE_KEYS.GROUPS] || changes[STORAGE_KEYS.FOLDERS] || changes[STORAGE_KEYS.LAST_SAVE]) {
       refreshData();
     }
   });

@@ -45,6 +45,9 @@ async function loadAndBindSettings() {
   const autoOpenDashCheckbox = document.getElementById('settingAutoOpenDash');
   autoOpenDashCheckbox.checked = currentSettings.autoOpenDashboardOnCollapse !== false;
 
+  const collapseIntoFolderCheckbox = document.getElementById('settingCollapseAllIntoNewFolder');
+  collapseIntoFolderCheckbox.checked = currentSettings.collapseAllIntoNewFolder === true;
+
   const openOnNewTabCheckbox = document.getElementById('settingOpenOnNewTab');
   if (openOnNewTabCheckbox) {
     openOnNewTabCheckbox.checked = currentSettings.openOnNewTab === true;
@@ -90,6 +93,10 @@ async function loadAndBindSettings() {
 
   autoOpenDashCheckbox.addEventListener('change', async (e) => {
     await saveSetting({ autoOpenDashboardOnCollapse: e.target.checked });
+  });
+
+  collapseIntoFolderCheckbox.addEventListener('change', async (e) => {
+    await saveSetting({ collapseAllIntoNewFolder: e.target.checked });
   });
 
   if (openOnNewTabCheckbox) {

@@ -15,7 +15,8 @@ const DEFAULT_SETTINGS = {
   confirmTabDelete: true,
   confirmGroupDelete: true,
   openOnNewTab: false,
-  capturePreviews: false
+  capturePreviews: false,
+  collapseAllIntoNewFolder: false
 };
 
 
@@ -24,7 +25,9 @@ const DEFAULT_SETTINGS = {
 const STORAGE_KEYS = {
   GROUPS: 'pinfold_groups',
   FOLDERS: 'pinfold_folders',
-  SETTINGS: 'pinfold_settings'
+  SETTINGS: 'pinfold_settings',
+  // The most recent save that went to no folder, so the dashboard can offer to file it
+  LAST_SAVE: 'pinfold_last_save'
 };
 
 // Keys used by pre-release builds. migrateLegacyStorage()
@@ -79,6 +82,18 @@ function formatMemory(mb) {
 // "1 tab" vs "2 tabs" in user-facing messages
 function pluralize(count, singular, plural = singular + 's') {
   return count === 1 ? singular : plural;
+}
+
+// Default names for folders made while saving, e.g. "Tabs · Nov 4" or "Window · Nov 4, 3:10 PM"
+function defaultFolderName(prefix, withTime = false, date = new Date()) {
+  const opts = { month: 'short', day: 'numeric' };
+  if (withTime) Object.assign(opts, { hour: 'numeric', minute: '2-digit' });
+  return `${prefix} · ${date.toLocaleString(undefined, opts)}`;
+}
+
+// Most recently used folders first; folders never saved into count from when they were made
+function sortFoldersByRecentUse(folders) {
+  return [...folders].sort((a, b) => (b.lastUsedAt || b.createdAt || 0) - (a.lastUsedAt || a.createdAt || 0));
 }
 
 function formatTimeAgo(timestamp) {
@@ -195,6 +210,7 @@ const PinfoldStorage = {
 
       const groups = await this.getGroups();
       await this.saveGroups([...newGroups, ...groups]);
+      if (options.folderId) await this._touchFolder(options.folderId, now);
       return newGroups;
     });
   },
@@ -452,6 +468,52 @@ const PinfoldStorage = {
     });
   },
 
+  // Moves several groups into one folder (or to the root) in one locked write.
+  async assignGroupsToFolder(groupIds, folderId) {
+    const ids = new Set(groupIds || []);
+    if (ids.size === 0) return 0;
+    return withStorageLock(async () => {
+      const groups = await this.getGroups();
+      let moved = 0;
+      groups.forEach(g => {
+        if (ids.has(g.id)) {
+          g.folderId = folderId || null;
+          moved++;
+        }
+      });
+      if (moved > 0) {
+        await this.saveGroups(groups);
+        if (folderId) await this._touchFolder(folderId, Date.now());
+      }
+      return moved;
+    });
+  },
+
+  async getRecentFolders(limit = 3) {
+    return sortFoldersByRecentUse(await this.getFolders()).slice(0, limit);
+  },
+
+  // Call only inside withStorageLock
+  async _touchFolder(folderId, when) {
+    const folders = await this.getFolders();
+    const folder = folders.find(f => f.id === folderId);
+    if (!folder) return;
+    folder.lastUsedAt = when;
+    await this.saveFolders(folders);
+  },
+
+  async getLastSave() {
+    return storageGet(STORAGE_KEYS.LAST_SAVE, null);
+  },
+
+  async setLastSave(lastSave) {
+    return storageSet({ [STORAGE_KEYS.LAST_SAVE]: lastSave });
+  },
+
+  async clearLastSave() {
+    return storageRemove([STORAGE_KEYS.LAST_SAVE]);
+  },
+
   async assignGroupToFolder(groupId, folderId) {
     return withStorageLock(async () => {
       const groups = await this.getGroups();
@@ -464,7 +526,7 @@ const PinfoldStorage = {
   },
 
   async clearAllData() {
-    return withStorageLock(() => storageRemove([STORAGE_KEYS.GROUPS, STORAGE_KEYS.FOLDERS]));
+    return withStorageLock(() => storageRemove([STORAGE_KEYS.GROUPS, STORAGE_KEYS.FOLDERS, STORAGE_KEYS.LAST_SAVE]));
   },
 
   // Copies data saved under the legacy keys to the new keys, then removes the old
@@ -499,7 +561,7 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
@@ -507,6 +569,8 @@ if (typeof module !== 'undefined' && module.exports) {
   globalThis.isSafeTabUrl = isSafeTabUrl;
   globalThis.formatMemory = formatMemory;
   globalThis.pluralize = pluralize;
+  globalThis.defaultFolderName = defaultFolderName;
+  globalThis.sortFoldersByRecentUse = sortFoldersByRecentUse;
   globalThis.formatTimeAgo = formatTimeAgo;
   globalThis.formatFullDate = formatFullDate;
 }

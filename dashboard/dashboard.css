@@ -1788,3 +1788,67 @@ body[data-theme="light"] .tab-hover-card {
   object-fit: contain;
   object-position: top center;
 }
+
+/* "Just saved" banner that offers to file an unfiled save */
+.just-saved-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 10px 8px 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  background-color: var(--bg-hover);
+  font-size: 12.5px;
+}
+
+.just-saved-banner.hidden {
+  display: none;
+}
+
+.just-saved-text {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.just-saved-text::before {
+  content: '✓';
+  color: var(--accent-color);
+  margin-right: 6px;
+}
+
+.just-saved-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.just-saved-select {
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  max-width: 200px;
+  cursor: pointer;
+}
+
+body[data-theme="dark"] .just-saved-select {
+  color-scheme: dark;
+}
+
+.just-saved-actions .onetab-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.single-tab-row.just-saved {
+  box-shadow: inset 3px 0 0 var(--accent-color);
+}
+
+.tab-card-entry.just-saved {
+  border-color: var(--accent-color);
+}

@@ -164,6 +164,23 @@ async function openDashboard({ windowId, reuse = false } = {}) {
   return await chrome.tabs.create(createProps);
 }
 
+// Where a save goes: a folder made for it (popup "New folder"), a folder picked in the
+// popup, a new folder for every Collapse all when that setting is on, or no folder.
+async function resolveSaveFolder(options, scope, settings) {
+  const newTitle = typeof options.newFolderTitle === 'string' ? options.newFolderTitle.trim().slice(0, 100) : '';
+  if (newTitle) {
+    return (await PinfoldStorage.addFolder(newTitle)).id;
+  }
+  if (options.folderId) {
+    const folders = await PinfoldStorage.getFolders();
+    return folders.some(f => f.id === options.folderId) ? options.folderId : null;
+  }
+  if (scope === 'ALL_IN_WINDOW' && settings.collapseAllIntoNewFolder) {
+    return (await PinfoldStorage.addFolder(defaultFolderName('Window', true))).id;
+  }
+  return null;
+}
+
 async function collapseTabs(options = {}) {
   const settings = await PinfoldStorage.getSettings();
   const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
@@ -246,9 +263,21 @@ async function collapseTabs(options = {}) {
     await capturePreviewImages(targetTabs, windowId, activeTab);
   }
 
+  const folderId = await resolveSaveFolder(options, scope, settings);
   const createdItems = await PinfoldStorage.addIndividualTabs(targetTabs, {
-    windowId: windowId
+    windowId: windowId,
+    folderId
   });
+
+  // Unfiled saves get a "just saved" banner in the dashboard offering to file them.
+  if (folderId) {
+    await PinfoldStorage.clearLastSave();
+  } else {
+    await PinfoldStorage.setLastSave({
+      groupIds: createdItems.map(g => g.id),
+      savedAt: Date.now()
+    });
+  }
 
   if (settings.autoOpenDashboardOnCollapse !== false) {
     await openDashboard({ windowId, reuse: true });
