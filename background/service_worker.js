@@ -368,50 +368,57 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+const NEW_TAB_URLS = [
+  'chrome://newtab/',
+  'chrome://new-tab-page/',
+  'chrome-search://local-ntp/local-ntp.html',
+  'edge://newtab/'
+];
+
+function isNewTabUrl(url) {
+  return !!url && NEW_TAB_URLS.some(u => url.startsWith(u));
+}
+
+// Clicking the "+" button creates the tab while the tab strip is still animating, and
+// Chrome then rejects tabs.update with "Tabs cannot be edited right now (user may be
+// dragging a tab)". Retry for a moment instead of giving up on the first try.
+async function openDashboardInNewTab(tabId) {
+  const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
+  for (let attempt = 0; attempt < 10; attempt++) {
+    try {
+      await chrome.tabs.update(tabId, { url: dashboardUrl });
+      return true;
+    } catch (err) {
+      const message = String(err && err.message || err);
+      if (!/cannot be edited right now/i.test(message)) return false;
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  return false;
+}
+
 chrome.tabs.onCreated.addListener(async (tab) => {
   try {
-    if (tab.openerTabId) return;
+    if (tab.openerTabId || !tab.id) return;
+    if (!isNewTabUrl(tab.pendingUrl) && !isNewTabUrl(tab.url)) return;
 
     const settings = await PinfoldStorage.getSettings();
     if (!settings.openOnNewTab) return;
 
-    const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
-    const newTabUrls = [
-      'chrome://newtab/',
-      'chrome://new-tab-page/',
-      'chrome-search://local-ntp/local-ntp.html',
-      'edge://newtab/'
-    ];
-
-    const isNewTab = (tab.pendingUrl && newTabUrls.some(u => tab.pendingUrl.startsWith(u))) ||
-                     (tab.url && newTabUrls.some(u => tab.url.startsWith(u)));
-
-    if (isNewTab && tab.id) {
-      await chrome.tabs.update(tab.id, { url: dashboardUrl });
-    }
+    await openDashboardInNewTab(tab.id);
   } catch (err) {
   }
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   try {
-    if (!changeInfo.url) return;
+    if (!isNewTabUrl(changeInfo.url)) return;
     if (tab && tab.openerTabId) return;
 
     const settings = await PinfoldStorage.getSettings();
     if (!settings.openOnNewTab) return;
 
-    const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
-    const newTabUrls = [
-      'chrome://newtab/',
-      'chrome://new-tab-page/',
-      'chrome-search://local-ntp/local-ntp.html',
-      'edge://newtab/'
-    ];
-
-    if (newTabUrls.some(u => changeInfo.url.startsWith(u))) {
-      await chrome.tabs.update(tabId, { url: dashboardUrl });
-    }
+    await openDashboardInNewTab(tabId);
   } catch (err) {
   }
 });
