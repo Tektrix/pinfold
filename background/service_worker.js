@@ -99,7 +99,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       collapseTabs({ scope: 'ALL_EXCEPT_ACTIVE', windowId: tab ? tab.windowId : undefined });
       break;
     case 'pinfold_open_dashboard':
-      openDashboard();
+      openDashboard({ windowId: tab ? tab.windowId : undefined });
       break;
   }
 });
@@ -114,7 +114,7 @@ chrome.commands.onCommand.addListener(async (command) => {
     } else if (command === 'send_current_tab') {
       await collapseTabs({ scope: 'CURRENT_TAB', windowId: winId });
     } else if (command === 'open_dashboard') {
-      await openDashboard();
+      await openDashboard({ windowId: winId });
     }
   } catch (err) {
     console.error('Pinfold shortcut error:', command, err);
@@ -146,20 +146,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function openDashboard() {
+// "Open Dashboard" always opens a new tab in the window the user is in. Jumping to a
+// dashboard tab in another window looked like nothing happened. Collapsing tabs passes
+// reuse: true so it switches to a dashboard already open in that same window instead.
+async function openDashboard({ windowId, reuse = false } = {}) {
   const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
-  const tabs = await chrome.tabs.query({});
-  const existingTab = tabs.find(t => t.url && t.url.startsWith(dashboardUrl));
-
-  if (existingTab) {
-    await chrome.tabs.update(existingTab.id, { active: true });
-    if (existingTab.windowId) {
-      await chrome.windows.update(existingTab.windowId, { focused: true });
+  if (reuse && windowId !== undefined) {
+    const tabs = await chrome.tabs.query({ windowId });
+    const existingTab = tabs.find(t => t.url && t.url.startsWith(dashboardUrl));
+    if (existingTab) {
+      await chrome.tabs.update(existingTab.id, { active: true });
+      return existingTab;
     }
-    return existingTab;
-  } else {
-    return await chrome.tabs.create({ url: dashboardUrl });
   }
+  const createProps = { url: dashboardUrl };
+  if (windowId !== undefined) createProps.windowId = windowId;
+  return await chrome.tabs.create(createProps);
 }
 
 async function collapseTabs(options = {}) {
@@ -235,7 +237,7 @@ async function collapseTabs(options = {}) {
 
   if (targetTabs.length === 0) {
     if (settings.autoOpenDashboardOnCollapse) {
-      await openDashboard();
+      await openDashboard({ windowId, reuse: true });
     }
     return { collapsedCount: 0 };
   }
@@ -249,7 +251,7 @@ async function collapseTabs(options = {}) {
   });
 
   if (settings.autoOpenDashboardOnCollapse !== false) {
-    await openDashboard();
+    await openDashboard({ windowId, reuse: true });
   }
 
   const tabIdsToClose = targetTabs.map(t => t.id);

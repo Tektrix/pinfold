@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- "Open Dashboard" now always opens a new dashboard tab in the window you are in. Before, it switched to a dashboard already open in another window, which looked like nothing happened. Collapsing tabs still reuses a dashboard tab that is already open in the same window.
+
 ## [1.0.2] - 2026-11-04
 
 ### Added
