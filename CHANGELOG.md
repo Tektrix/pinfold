@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The dashboard theme toggle switches immediately when the system uses dark mode.
 - Tab, group & page preview counts now display the singular and plural form across the dashboard, options page and exports.
 - The popup and the dashboard's empty state now show the keyboard shortcuts the browser actually assigned, including macOS defaults and shortcuts changed at `chrome://extensions/shortcuts`, and hide shortcuts that are not assigned.
+- "Open Pinfold on New Tab" now works when the tab is opened with the "+" button. Chrome briefly refuses to change a tab while the tab strip animates, and Pinfold gave up on the first try.
+- Importing a JSON backup no longer renames untitled groups to "Imported Group 1", "Imported Group 2" and so on. They keep showing the name of their tab, as before the export.
 
 ## [1.0.1] - 2026-10-26
 
