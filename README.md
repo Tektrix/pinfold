@@ -109,7 +109,7 @@ See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | Save the current tab |
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open the dashboard |
 
-In the dashboard: <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses search, <kbd>Esc</kbd> leaves the search box or closes the import/export dialog.
+In the dashboard: <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses search, <kbd>Esc</kbd> leaves the search box or closes the import/export dialog. Select a sidebar item and press <kbd>Delete</kbd> (the Delete key on Mac) to delete it.
 
 The browser may not assign a suggested shortcut if another extension already uses it. You can change shortcuts at `chrome://extensions/shortcuts` (or `edge://extensions/shortcuts`).
 
