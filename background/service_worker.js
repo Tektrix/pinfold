@@ -332,12 +332,25 @@ async function capturePreviewImages(targetTabs, windowId, activeTab) {
   }
 }
 
+// An excluded entry may hold a bare domain ("youtube.com"), a host with a port
+// ("localhost:3000"), or a pasted address ("https://www.youtube.com/watch").
+// Reduce each entry to the host (and optional port) it names so every form
+// matches the way the settings text implies.
+function normalizeDomainEntry(entry) {
+  let d = String(entry ?? '').trim().toLowerCase();
+  const schemeIdx = d.indexOf('://');
+  if (schemeIdx !== -1) d = d.slice(schemeIdx + 3);
+  const slashIdx = d.indexOf('/');
+  if (slashIdx !== -1) d = d.slice(0, slashIdx);
+  return d.replace(/^www\./, '');
+}
+
 function isDomainExcluded(url, excludedDomains = []) {
   try {
     const parsed = new URL(url);
     const host = parsed.hostname.toLowerCase();
     return excludedDomains.some(d => {
-      const cleanD = d.trim().toLowerCase().replace(/^www\./, '');
+      const cleanD = normalizeDomainEntry(d);
       if (!cleanD) return false;
       // Entries with a port (e.g. "localhost:3000") match host:port exactly.
       if (cleanD.includes(':')) return parsed.host.toLowerCase() === cleanD;
