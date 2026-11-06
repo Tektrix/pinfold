@@ -216,10 +216,12 @@ test('excluded domains match the domain and its subdomains only', () => {
 
 test('excluded entries pasted as an address still match their host', () => {
   const isDomainExcluded = loadServiceWorkerFunction('isDomainExcluded');
-  const list = ['https://www.youtube.com/', 'youtube.com/watch', 'http://localhost:3000/app'];
+  const list = ['https://www.youtube.com/', 'youtube.com/watch', 'youtube.com?v=1', 'youtube.com#top', 'http://localhost:3000/app'];
   assert.ok(isDomainExcluded('https://www.youtube.com/watch?v=1', list), 'scheme + path entry');
   assert.ok(isDomainExcluded('https://youtube.com/', list), 'bare-host URL');
   assert.ok(isDomainExcluded('https://music.youtube.com/watch?v=1', list), 'subdomain of a pasted URL');
+  assert.ok(isDomainExcluded('https://www.youtube.com/', list), 'query-only entry');
+  assert.ok(isDomainExcluded('https://youtube.com/watch?v=1', list), 'fragment-only entry');
   assert.ok(isDomainExcluded('http://localhost:3000/', list), 'URL entry keeps its port');
   assert.ok(!isDomainExcluded('https://example.com', list));
   assert.ok(!isDomainExcluded('http://localhost:8080/', list));

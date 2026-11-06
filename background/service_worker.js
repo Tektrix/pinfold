@@ -340,8 +340,8 @@ function normalizeDomainEntry(entry) {
   let d = String(entry ?? '').trim().toLowerCase();
   const schemeIdx = d.indexOf('://');
   if (schemeIdx !== -1) d = d.slice(schemeIdx + 3);
-  const slashIdx = d.indexOf('/');
-  if (slashIdx !== -1) d = d.slice(0, slashIdx);
+  const tailIdx = d.search(/[/?#]/);
+  if (tailIdx !== -1) d = d.slice(0, tailIdx);
   return d.replace(/^www\./, '');
 }
 
