@@ -265,3 +265,31 @@ test('a cut-off JSON backup is rejected, not read as text', () => {
 test('JSON that is not a Pinfold backup is rejected', () => {
   assert.throws(() => ExportImport.parseImport('{"bookmarks": ["https://example.com"]}'), /not a Pinfold backup/);
 });
+
+test('Markdown export -> import keeps tags and leaves untitled groups untitled', () => {
+  const src = [
+    {
+      id: 'grp_tagged', title: 'Reading', createdAt: 1720000000000, tags: ['work', 'reading'],
+      tabs: [{ id: 't1', title: 'Example', url: 'https://example.com/' }]
+    },
+    {
+      id: 'grp_untitled', title: '', createdAt: 1720000100000, tags: [],
+      tabs: [{ id: 't2', title: 'Wiki', url: 'https://en.wikipedia.org/' }]
+    }
+  ];
+  const markdown = ExportImport.exportToMarkdown(src);
+  assert.match(markdown, /## Untitled \(1 tab\)/);
+  assert.match(markdown, /\*Tags: #work, #reading\*/);
+
+  const res = ExportImport.parseImport(markdown);
+  assert.strictEqual(res.format, 'markdown');
+  assert.deepStrictEqual(res.groups.map(g => g.title), ['Reading', '']);
+  assert.deepStrictEqual(res.groups[0].tags, ['work', 'reading']);
+  assert.strictEqual(res.totalTabs, 2);
+});
+
+test('Markdown exports written before the Untitled heading still import', () => {
+  const md = '## Tab Group 1 (1 tab) - 11/8/2026\n\n- [Example](https://example.com/)';
+  const res = ExportImport.parseImport(md);
+  assert.deepStrictEqual(res.groups.map(g => g.title), ['Tab Group 1']);
+});

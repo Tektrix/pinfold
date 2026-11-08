@@ -43,8 +43,10 @@ const ExportImport = {
   exportToMarkdown(groups) {
     let md = `# Pinfold Saved Tabs Export\n*Exported on ${new Date().toLocaleString()}*\n\n`;
 
-    groups.forEach((group, idx) => {
-      const groupName = group.title ? String(group.title).replace(/[\r\n]+/g, ' ') : `Tab Group ${idx + 1}`;
+    groups.forEach((group) => {
+      // "Untitled" is what the importer turns back into an empty title, so a round trip
+      // restores the group's unset name instead of baking in a number.
+      const groupName = group.title ? String(group.title).replace(/[\r\n]+/g, ' ') : 'Untitled';
       const dateStr = new Date(group.createdAt).toLocaleDateString();
       const tabCount = group.tabs ? group.tabs.length : 0;
 
@@ -225,6 +227,15 @@ const ExportImport = {
     return { title: m[1].trim(), url };
   },
 
+  _parseTagsLine(line) {
+    const m = line.match(/^\*Tags:\s*(.*)\*$/);
+    if (!m) return null;
+    const tags = m[1].split(',')
+      .map(t => t.trim().replace(/^#/, ''))
+      .filter(t => t.length > 0);
+    return tags.length > 0 ? this._cleanTags(tags) : null;
+  },
+
   _parseMarkdown(mdText) {
     const groups = [];
     const lines = mdText.split(/\r?\n/);
@@ -244,8 +255,20 @@ const ExportImport = {
       if (trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
         finalizeGroup();
         const headerText = trimmed.replace(/^#+\s*/, '').replace(/\s*\(\d+\s*tabs?\).*$/i, '').trim();
-        currentGroup = this._buildGroup(headerText, 'Imported Group');
+        // Exports write "Untitled" for a group whose name was never set; keep that group
+        // untitled rather than naming it after the placeholder.
+        currentGroup = headerText === 'Untitled'
+          ? this._buildGroup('', '')
+          : this._buildGroup(headerText, 'Imported Group');
         return;
+      }
+
+      if (currentGroup) {
+        const tags = this._parseTagsLine(trimmed);
+        if (tags) {
+          currentGroup.tags = tags;
+          return;
+        }
       }
 
       const link = this._extractMarkdownLink(trimmed);
