@@ -144,6 +144,9 @@ function renderIcons() {
 
   const dashboardEl = document.getElementById('iconDashboard');
   if (dashboardEl) dashboardEl.innerHTML = SVG_ICONS.dashboard;
+
+  const sleepTabsEl = document.getElementById('iconSleepTabs');
+  if (sleepTabsEl) sleepTabsEl.innerHTML = SVG_ICONS.moon;
 }
 
 // The browser may use different defaults (Command on macOS), leave a shortcut
@@ -220,6 +223,11 @@ function bindActionButtons() {
     });
   }
 
+  const btnSleepTabs = document.getElementById('btnSleepTabs');
+  if (btnSleepTabs) {
+    btnSleepTabs.addEventListener('click', triggerSleepTabs);
+  }
+
   const btnOpenDashboard = document.getElementById('btnOpenDashboard');
   if (btnOpenDashboard) {
     btnOpenDashboard.addEventListener('click', () => {
@@ -237,6 +245,34 @@ function bindActionButtons() {
         window.open(chrome.runtime.getURL('options/options.html'));
       }
     });
+  }
+}
+
+async function triggerSleepTabs() {
+  const button = document.getElementById('btnSleepTabs');
+  const label = document.getElementById('sleepTabsLabel');
+  if (!button || !label || button.disabled) return;
+
+  button.disabled = true;
+  label.textContent = 'Putting tabs to sleep…';
+  try {
+    const currentWin = await chrome.windows.getLastFocused();
+    const response = await chrome.runtime.sendMessage({
+      action: 'SLEEP_TABS',
+      windowId: currentWin ? currentWin.id : undefined
+    });
+    if (!response || !response.success) {
+      throw new Error(response && response.error || 'No response from Pinfold');
+    }
+    const count = response.sleptCount;
+    label.textContent = count > 0
+      ? `Put ${count} ${pluralize(count, 'tab')} to sleep`
+      : 'No tabs to put to sleep';
+    setTimeout(() => window.close(), 1000);
+  } catch (err) {
+    console.error('Pinfold sleep error:', err);
+    label.textContent = 'Couldn’t sleep tabs. Try again.';
+    button.disabled = false;
   }
 }
 

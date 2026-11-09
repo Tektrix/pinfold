@@ -28,6 +28,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 ## Features
 
 **Saving tabs**
+- Sleep other tabs: free their memory without closing them. Chrome reloads a tab when you click it. Active, pinned and playing tabs stay awake, as do browser and extension pages; nothing is saved to Pinfold.
 - Save tabs from the toolbar popup, the right-click menu, or keyboard shortcuts.
 - Choose what to save: all tabs in the window, the current tab, tabs to the left, tabs to the right, or all tabs except the active one.
 - Choose where to save from the popup: a recent folder, a new folder, or any other folder. Tabs saved without a folder can be filed from the dashboard right after saving, and an optional setting puts each Collapse All into its own new folder.

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Sleep other tabs from the popup or right-click menu to free memory without closing them. Eligible tabs in the current window stay in the tab bar and reload when clicked, with no new permissions or saved data.
 - Save tabs straight into a folder: the popup has a "Save to" row with your three most recently used folders, "+ New folder" and "More…" for any other folder. It resets to "All tabs" each time the popup opens, and keyboard shortcuts still save without a folder.
 - After saving tabs without a folder, the dashboard shows a "saved just now" banner with "Move to folder" and "New folder", and highlights the tabs you just saved.
 - New setting, off by default: "Put Each Collapse All into a New Folder" saves each Collapse All Tabs into a new folder named after the date and time.

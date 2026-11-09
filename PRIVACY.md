@@ -1,12 +1,13 @@
 # Pinfold Privacy Policy
 
-Last updated: 2026-10-22
+Last updated: 2026-11-09
 
 Pinfold is a tab manager browser extension. This policy explains what data it accesses, where that data is kept, and how to delete it. In short: everything stays on your device, and nothing is sent to us or to anyone else.
 
 ## What data Pinfold accesses
 
 - **Tab titles and URLs.** When you save tabs (from the popup, the right-click menu, or a keyboard shortcut), Pinfold reads the title and address of those tabs so it can store them and reopen them later. Tabs in incognito windows are never saved.
+- **Sleeping tabs.** "Sleep other tabs" checks tab URLs and browser state in the current window, then asks the browser to discard eligible tabs. It stores no data, never acts on incognito tabs and needs no new permissions. The browser reloads a sleeping tab when you click it.
 - **Page screenshots (optional, off by default).** If you turn on "Capture Page Previews" in Options, Pinfold takes a small, low-quality screenshot of each tab as you save it, to show as a thumbnail in the dashboard.
 - **Site icons.** Pinfold displays icons from your browser's own local favicon cache. It does not download them from websites.
 - **Your settings**, such as theme, excluded domains, and restore behavior.
