@@ -48,6 +48,11 @@ async function loadAndBindSettings() {
   const collapseIntoFolderCheckbox = document.getElementById('settingCollapseAllIntoNewFolder');
   collapseIntoFolderCheckbox.checked = currentSettings.collapseAllIntoNewFolder === true;
 
+  const skipDuplicateCheckbox = document.getElementById('settingSkipDuplicateTabs');
+  if (skipDuplicateCheckbox) {
+    skipDuplicateCheckbox.checked = currentSettings.skipDuplicateTabs === true;
+  }
+
   const openOnNewTabCheckbox = document.getElementById('settingOpenOnNewTab');
   if (openOnNewTabCheckbox) {
     openOnNewTabCheckbox.checked = currentSettings.openOnNewTab === true;
@@ -98,6 +103,12 @@ async function loadAndBindSettings() {
   collapseIntoFolderCheckbox.addEventListener('change', async (e) => {
     await saveSetting({ collapseAllIntoNewFolder: e.target.checked });
   });
+
+  if (skipDuplicateCheckbox) {
+    skipDuplicateCheckbox.addEventListener('change', async (e) => {
+      await saveSetting({ skipDuplicateTabs: e.target.checked });
+    });
+  }
 
   if (openOnNewTabCheckbox) {
     openOnNewTabCheckbox.addEventListener('change', async (e) => {

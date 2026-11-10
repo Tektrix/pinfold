@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Save tabs straight into a folder: the popup has a "Save to" row with your three most recently used folders, "+ New folder" and "More…" for any other folder. It resets to "All tabs" each time the popup opens, and keyboard shortcuts still save without a folder.
 - After saving tabs without a folder, the dashboard shows a "saved just now" banner with "Move to folder" and "New folder", and highlights the tabs you just saved.
 - New setting, off by default: "Put Each Collapse All into a New Folder" saves each Collapse All Tabs into a new folder named after the date and time.
+- New setting, off by default: "Skip Duplicate Tabs When Saving" saves a page only once when the same URL is open in several tabs. The duplicate tabs are still closed.
 - Delete a saved tab or group straight from the sidebar: hover it and click the trash icon, or select it and press Delete (the delete key on a Mac). It asks for the same confirmation as the tab list, and the next item is selected so you can keep going.
 
 ### Fixed

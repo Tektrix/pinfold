@@ -227,6 +227,24 @@ test('excluded entries pasted as an address still match their host', () => {
   assert.ok(!isDomainExcluded('http://localhost:8080/', list));
 });
 
+test('dropDuplicateTabs keeps one tab per URL and preserves fragment-only differences', () => {
+  const dropDuplicateTabs = loadServiceWorkerFunction('dropDuplicateTabs');
+  const tab = (url) => ({ id: url, url });
+
+  assert.deepStrictEqual(dropDuplicateTabs([tab('https://a.com/'), tab('https://b.com/')]),
+    [tab('https://a.com/'), tab('https://b.com/')], 'no duplicates');
+
+  assert.deepStrictEqual(dropDuplicateTabs([tab('https://a.com/'), tab('https://a.com/'), tab('https://b.com/')]),
+    [tab('https://a.com/'), tab('https://b.com/')], 'second copy of the same URL is dropped, first kept');
+
+  assert.deepStrictEqual(dropDuplicateTabs([tab('https://a.com/'), tab('https://a.com/#one'), tab('https://a.com/#two')]),
+    [tab('https://a.com/'), tab('https://a.com/#one'), tab('https://a.com/#two')], 'URLs differing only after # are different pages');
+
+  assert.deepStrictEqual(dropDuplicateTabs([]), [], 'empty input');
+  // The fallback array is created inside the vm sandbox, so its prototype is not the host one.
+  assert.deepStrictEqual(Array.from(dropDuplicateTabs(null)), [], 'null input');
+});
+
 test('migrateLegacyStorage moves legacy data to the new keys once', async () => {
   const legacyGroups = [{ id: 'g1', tabs: [{ id: 't1', url: 'https://a.com' }] }];
   store.load({
