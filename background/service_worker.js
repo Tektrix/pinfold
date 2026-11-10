@@ -181,6 +181,19 @@ async function resolveSaveFolder(options, scope, settings) {
   return null;
 }
 
+// Keeps the first tab for each exact URL, so a page open in several tabs is only
+// saved once when "Skip duplicate tabs when saving" is on. Tabs whose URLs differ
+// only after "#" are different pages and both are kept.
+function dropDuplicateTabs(tabs) {
+  const seen = new Set();
+  return (tabs || []).filter((t) => {
+    if (!t.url) return true;
+    if (seen.has(t.url)) return false;
+    seen.add(t.url);
+    return true;
+  });
+}
+
 async function collapseTabs(options = {}) {
   const settings = await PinfoldStorage.getSettings();
   const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
@@ -259,12 +272,15 @@ async function collapseTabs(options = {}) {
     return { collapsedCount: 0 };
   }
 
+  // Duplicates are still closed below, just not saved twice.
+  const tabsToSave = settings.skipDuplicateTabs ? dropDuplicateTabs(targetTabs) : targetTabs;
+
   if (await canCapturePreviews(settings) && windowId) {
-    await capturePreviewImages(targetTabs, windowId, activeTab);
+    await capturePreviewImages(tabsToSave, windowId, activeTab);
   }
 
   const folderId = await resolveSaveFolder(options, scope, settings);
-  const createdItems = await PinfoldStorage.addIndividualTabs(targetTabs, {
+  const createdItems = await PinfoldStorage.addIndividualTabs(tabsToSave, {
     windowId: windowId,
     folderId
   });

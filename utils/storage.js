@@ -16,7 +16,8 @@ const DEFAULT_SETTINGS = {
   confirmGroupDelete: true,
   openOnNewTab: false,
   capturePreviews: false,
-  collapseAllIntoNewFolder: false
+  collapseAllIntoNewFolder: false,
+  skipDuplicateTabs: false
 };
 
 
