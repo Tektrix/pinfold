@@ -90,7 +90,6 @@ for (const page of PAGES) {
   });
 }
 
-
 test('toast containers are live regions so screen readers announce toasts', () => {
   for (const page of ['dashboard', 'options']) {
     const { html } = readPage(page);
