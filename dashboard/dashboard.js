@@ -211,8 +211,30 @@ function updateSidebarCountsAndMemory() {
   document.getElementById('sidebarRamSaved').textContent = `~${formatMemory(totalRamMB)}`;
 }
 
+// Keyboard support for a sidebar tree item: Enter and Space activate it like a
+// click, and folders also take Arrow Right to expand and Arrow Left to collapse.
+// Events from the item's own buttons are left to those buttons.
+function setupTreeItemKeyboard(item, { onToggle = null, isCollapsed = false } = {}) {
+  item.addEventListener('keydown', (e) => {
+    if (e.target !== item) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      item.click();
+    } else if (onToggle && e.key === 'ArrowRight' && isCollapsed) {
+      e.preventDefault();
+      onToggle();
+    } else if (onToggle && e.key === 'ArrowLeft' && !isCollapsed) {
+      e.preventDefault();
+      onToggle();
+    }
+  });
+}
+
 function renderTreeView() {
   const container = document.getElementById('treeViewContainer');
+  // The rebuild drops keyboard focus; remember which item had it and restore it below.
+  const focusKey = document.activeElement && document.activeElement.dataset
+    ? document.activeElement.dataset.focusKey : null;
   container.innerHTML = '';
 
   const totalTabs = state.groups.reduce((acc, g) => acc + (g.tabs ? g.tabs.length : 0), 0);
@@ -225,6 +247,11 @@ function renderTreeView() {
 
   const rootItem = document.createElement('div');
   rootItem.className = `tree-node-item ${isAllActive ? 'active' : ''}`;
+  rootItem.setAttribute('tabindex', '0');
+  rootItem.setAttribute('role', 'treeitem');
+  rootItem.setAttribute('aria-expanded', String(!isRootCollapsed));
+  if (isAllActive) rootItem.setAttribute('aria-current', 'true');
+  rootItem.dataset.focusKey = 'root';
   rootItem.innerHTML = `
     <span class="tree-toggle-arrow ${isRootCollapsed ? 'collapsed' : ''}">▼</span>
     <span class="tree-node-icon">📁</span>
@@ -257,6 +284,7 @@ function renderTreeView() {
     showToast('Folder created');
   });
 
+  setupTreeItemKeyboard(rootItem, { onToggle: () => rootToggle.click(), isCollapsed: isRootCollapsed });
   setupTreeDropTarget(rootItem, null);
   rootNodeGroup.appendChild(rootItem);
 
@@ -277,6 +305,11 @@ function renderTreeView() {
 
   rootNodeGroup.appendChild(rootChildrenContainer);
   container.appendChild(rootNodeGroup);
+
+  if (focusKey) {
+    const restored = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
+    if (restored) restored.focus();
+  }
 }
 
 function createTreeFolderBranch(folder) {
@@ -289,6 +322,12 @@ function createTreeFolderBranch(folder) {
 
   const folderItem = document.createElement('div');
   folderItem.className = `tree-node-item ${isFolderActive ? 'active' : ''}`;
+  folderItem.setAttribute('tabindex', '0');
+  folderItem.setAttribute('role', 'treeitem');
+  folderItem.setAttribute('aria-expanded', String(!isCollapsed));
+  if (isFolderActive) folderItem.setAttribute('aria-current', 'true');
+  folderItem.dataset.folderId = folder.id;
+  folderItem.dataset.focusKey = `folder:${folder.id}`;
   folderItem.innerHTML = `
     <span class="tree-toggle-arrow ${isCollapsed ? 'collapsed' : ''}">▼</span>
     <span class="tree-node-icon">📁</span>
@@ -349,6 +388,10 @@ function createTreeFolderBranch(folder) {
     showToast('Folder deleted');
   });
 
+  setupTreeItemKeyboard(folderItem, {
+    onToggle: () => folderItem.querySelector('.tree-toggle-arrow').click(),
+    isCollapsed
+  });
   setupTreeDropTarget(folderItem, folder.id);
   branchGroup.appendChild(folderItem);
 
@@ -375,7 +418,11 @@ function createTreeGroupLeaf(group) {
   const leafItem = document.createElement('div');
   const isGroupActive = state.activeFilter === `group:${group.id}`;
   leafItem.className = `tree-node-item ${isGroupActive ? 'active' : ''}`;
+  leafItem.setAttribute('tabindex', '0');
+  leafItem.setAttribute('role', 'treeitem');
+  if (isGroupActive) leafItem.setAttribute('aria-current', 'true');
   leafItem.dataset.groupId = group.id;
+  leafItem.dataset.focusKey = `group:${group.id}`;
   leafItem.draggable = true;
 
   const tabCount = group.tabs ? group.tabs.length : 0;
@@ -401,6 +448,7 @@ function createTreeGroupLeaf(group) {
     <button class="tree-mini-edit-btn tree-mini-delete-btn btn-delete-tree-leaf" title="Delete" aria-label="Delete ${escapeHtml(name)}">${SVG_ICONS.trash}</button>
   `;
 
+  setupTreeItemKeyboard(leafItem);
   attachFaviconErrorHandlers(leafItem);
 
   const editLeafBtn = leafItem.querySelector('.btn-edit-tree-leaf');
