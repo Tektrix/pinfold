@@ -34,6 +34,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 - Pinned tabs are left open by default (configurable).
 - Excluded domains are never saved by the multi-tab actions. An entry like `example.com` matches that domain and its subdomains; an entry with a port, like `localhost:3000`, matches that host and port exactly.
 - Incognito tabs are never saved.
+- Sleep other tabs: free their memory without closing them. Chrome reloads a tab when you click it.
 - "Skip Duplicate Tabs When Saving" (off by default, in Options) saves a page only once when the same URL is open in several tabs. The duplicate tabs are still closed.
 - The toolbar icon shows a badge with the number of saved tabs.
 
