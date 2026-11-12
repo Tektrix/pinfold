@@ -34,6 +34,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 - Pinned tabs are left open by default (configurable).
 - Excluded domains are never saved by the multi-tab actions. An entry like `example.com` matches that domain and its subdomains; an entry with a port, like `localhost:3000`, matches that host and port exactly.
 - Incognito tabs are never saved.
+- "Skip Duplicate Tabs When Saving" (off by default, in Options) saves a page only once when the same URL is open in several tabs. The duplicate tabs are still closed.
 - The toolbar icon shows a badge with the number of saved tabs.
 
 **Dashboard**
@@ -53,6 +54,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 - Turning it on asks Chrome for the optional "access all sites" permission, which screenshot capture requires.
 - While it is on, saving tabs briefly switches to each tab to capture a low-quality JPEG thumbnail. Thumbnails are stored locally only.
 - Previews are never included in exports or backups. Options has a button to delete all stored previews.
+- In cards view, hovering a card shows a larger preview. An expand button opens the full screenshot in a window; close it with `Esc`, the close button, or a click outside it.
 
 **Memory estimate**
 - The sidebar shows a rough estimate of memory freed, based on about 50 MB per saved tab. Extensions cannot measure the real memory a tab used, so treat this number as a ballpark, not a measurement.
@@ -109,7 +111,7 @@ See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | Save the current tab |
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open the dashboard |
 
-In the dashboard: <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses search, <kbd>Esc</kbd> leaves the search box or closes the import/export dialog. Select a sidebar item and press <kbd>Delete</kbd> (the Delete key on Mac) to delete it.
+In the dashboard: <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses search, <kbd>Esc</kbd> leaves the search box, closes the import/export dialog, or closes the page preview. Select a sidebar item and press <kbd>Delete</kbd> (the Delete key on Mac) to delete it.
 
 The browser may not assign a suggested shortcut if another extension already uses it. You can change shortcuts at `chrome://extensions/shortcuts` (or `edge://extensions/shortcuts`).
 
