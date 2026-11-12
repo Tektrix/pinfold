@@ -23,7 +23,7 @@
           autocomplete="off"
           spellcheck="false"
         />
-        <button id="btnClearSearch" class="btn-clear-search hidden" title="Clear search">✕</button>
+        <button id="btnClearSearch" class="btn-clear-search hidden" title="Clear search" aria-label="Clear search"><span aria-hidden="true">✕</span></button>
       </div>
 
       <div class="header-right">
@@ -34,11 +34,11 @@
         <button id="btnOpenExportImport" class="header-btn" title="Export or import tabs">
           <span>Export / Import</span>
         </button>
-        <button id="themeToggleBtn" class="header-icon-btn" title="Toggle Dark/Light theme">
-          <span id="themeIcon"></span>
+        <button id="themeToggleBtn" class="header-icon-btn" title="Toggle Dark/Light theme" aria-label="Toggle Dark/Light theme">
+          <span id="themeIcon" aria-hidden="true"></span>
         </button>
-        <button id="btnHeaderSettings" class="header-icon-btn" title="Settings">
-          <span id="headerSettingsIcon"></span>
+        <button id="btnHeaderSettings" class="header-icon-btn" title="Settings" aria-label="Settings">
+          <span id="headerSettingsIcon" aria-hidden="true"></span>
         </button>
       </div>
     </header>
@@ -139,7 +139,7 @@
       <div class="modal-card">
         <div class="modal-header">
           <h3 class="modal-title">Export / Import</h3>
-          <button id="btnCloseModal" class="btn-close-modal">✕</button>
+          <button id="btnCloseModal" class="btn-close-modal" title="Close" aria-label="Close"><span aria-hidden="true">✕</span></button>
         </div>
 
         <div class="modal-tabs-nav">
