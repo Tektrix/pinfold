@@ -97,6 +97,8 @@ test('toast containers are live regions so screen readers announce toasts', () =
     assert.ok(match, `${page}.html has a toast container`);
     assert.ok(match[0].includes('role="status"'), `${page} toast container has role="status"`);
     assert.ok(match[0].includes('aria-live="polite"'), `${page} toast container has aria-live="polite"`);
+  }
+});
 
 test('every options control is named by its visible label', () => {
   const { html } = readPage('options');
