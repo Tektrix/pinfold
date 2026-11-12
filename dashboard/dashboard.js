@@ -1567,6 +1567,20 @@ function bindEventListeners() {
       alert('Failed to import: ' + err.message);
     }
   });
+  document.getElementById('btnChooseImportFile').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+
+  document.getElementById('importFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('That file is too large to import (max 20 MB)');
+      return;
+    }
+    document.getElementById('importInputTextarea').value = await file.text();
+  });
 }
 
 function openExportImportModal(defaultTab = 'export-onetab') {

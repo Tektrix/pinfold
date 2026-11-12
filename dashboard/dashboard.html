@@ -185,6 +185,8 @@
               <label><input type="radio" name="importMode" value="replace"> Replace all</label>
             </div>
             <div class="modal-actions">
+              <input type="file" id="importFileInput" accept=".json,.txt,.md,application/json,text/plain,text/markdown" hidden>
+              <button id="btnChooseImportFile" class="onetab-btn onetab-btn-secondary">Choose file…</button>
               <button id="btnExecuteImport" class="onetab-btn onetab-btn-primary">Import tabs</button>
             </div>
           </div>
