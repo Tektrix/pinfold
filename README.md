@@ -142,13 +142,6 @@ Imports can be merged with your existing tabs or replace them. Imported items ge
 - **No sync.** Data stays in one browser profile on one device. Use export/import to move it.
 - Excluded domains and the pinned-tab setting apply to the multi-tab actions. "Save the current tab" always saves the tab you asked for.
 - Some browser-internal pages may refuse to reopen. Tabs that fail to open stay in your list.
-
----
-
-## Development
-
-There is no build step and no dependencies: plain JavaScript, HTML and CSS. Edit the files and click the reload icon for the extension on `chrome://extensions`.
-
 ```
 manifest.json
 background/service_worker.js   Context menus, shortcuts, saving and restoring tabs, preview capture, badge
@@ -157,19 +150,35 @@ popup/                         Toolbar popup with the save actions
 options/                       Settings page
 utils/storage.js               chrome.storage.local wrapper, settings defaults, URL safety checks
 utils/export_import.js         OneTab, Markdown and JSON export and import parsing
+utils/groups.js                Group display name and sorting helpers (getGroupDisplayName, compareGroups)
 utils/icons.js                 Inline SVG icons and small helpers
 icons/                         Extension icons (16, 32, 48, 128 px)
 generate_icons.js              Script that regenerates the PNG icons
-test_pinfold.js                   Validation script (manifest, icons, network isolation, parsers)
+scripts/package.js             Builds dist/pinfold-<version>.zip for the Chrome Web Store and Edge Add-ons
+scripts/build-privacy-page.js  Builds site/privacy.html from PRIVACY.md
+site/                          Static landing and privacy site (served at pinfold.page)
+store/                         Chrome Web Store and Edge Add-ons listing text, promo tiles, and screenshots
+test_pinfold.js                Validation script (manifest, icons, network isolation, parsers)
 tests/                         Unit tests (node:test)
 ```
 
-Run the tests with Node.js:
+Run the test suite with Node.js:
+
+```bash
+npm test
+```
+
+This runs both the validation script and the unit test suite:
 
 ```bash
 node test_pinfold.js
 node --test "tests/*.test.js"
 ```
+
+
+---
+
+## Development
 
 `npm run package` builds the store zip in `dist/`.
 
