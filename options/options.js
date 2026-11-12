@@ -157,7 +157,7 @@ async function loadAndBindSettings() {
   document.getElementById('btnBackupAll').addEventListener('click', async () => {
     const groups = await PinfoldStorage.getGroups();
     const json = ExportImport.exportToJSON(groups);
-    ExportImport.downloadFile(`pinfold-full-backup-${new Date().toISOString().slice(0, 10)}.json`, json, 'application/json');
+    ExportImport.downloadFile(`pinfold-full-backup-${localDateStamp()}.json`, json, 'application/json');
     showToast('Backup downloaded');
   });
 

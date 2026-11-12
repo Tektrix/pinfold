@@ -85,6 +85,14 @@ function pluralize(count, singular, plural = singular + 's') {
   return count === 1 ? singular : plural;
 }
 
+// Local calendar date as YYYY-MM-DD for export file names, so an evening
+// export is named with today's local date, not the UTC date
+function localDateStamp(date = new Date()) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 // Default names for folders made while saving, e.g. "Tabs · Nov 4" or "Window · Nov 4, 3:10 PM"
 function defaultFolderName(prefix, withTime = false, date = new Date()) {
   const opts = { month: 'short', day: 'numeric' };
@@ -562,7 +570,7 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, localDateStamp, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
@@ -570,6 +578,7 @@ if (typeof module !== 'undefined' && module.exports) {
   globalThis.isSafeTabUrl = isSafeTabUrl;
   globalThis.formatMemory = formatMemory;
   globalThis.pluralize = pluralize;
+  globalThis.localDateStamp = localDateStamp;
   globalThis.defaultFolderName = defaultFolderName;
   globalThis.sortFoldersByRecentUse = sortFoldersByRecentUse;
   globalThis.formatTimeAgo = formatTimeAgo;
