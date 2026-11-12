@@ -1385,6 +1385,11 @@ function bindEventListeners() {
   });
 
   window.addEventListener('keydown', (e) => {
+    // Keep Tab inside the Export / Import dialog while it is open
+        if (e.key === 'Tab' && !document.getElementById('exportImportModal').classList.contains('hidden')) {
+          keepFocusInModal(e, document.getElementById('exportImportModal'));
+          return;
+        }
     const typingInField = e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
     if (((e.key === '/' && !typingInField) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
       e.preventDefault();
@@ -1583,7 +1588,10 @@ function bindEventListeners() {
   });
 }
 
+let modalReturnFocus = null;
+
 function openExportImportModal(defaultTab = 'export-onetab') {
+  modalReturnFocus = document.activeElement;
   const modal = document.getElementById('exportImportModal');
   modal.classList.remove('hidden');
 
@@ -1592,10 +1600,46 @@ function openExportImportModal(defaultTab = 'export-onetab') {
   document.getElementById('exportJsonTextarea').value = ExportImport.exportToJSON(state.groups);
 
   switchModalTab(defaultTab);
-}
 
+  if (defaultTab === 'import-tab') {
+    document.getElementById('importInputTextarea').focus();
+  } else {
+    const activeTabBtn = document.querySelector('.modal-nav-tab.active');
+    if (activeTabBtn) activeTabBtn.focus();
+  }
+}
 function closeExportImportModal() {
   document.getElementById('exportImportModal').classList.add('hidden');
+  if (modalReturnFocus && document.contains(modalReturnFocus)) {
+    modalReturnFocus.focus();
+  }
+  modalReturnFocus = null;
+}
+
+// The elements of a container that can take keyboard focus, skipping disabled
+// controls, hidden inputs and anything on an inactive modal panel.
+function getFocusableElements(container) {
+  return [...container.querySelectorAll('button, input, select, textarea, [tabindex]')].filter(el => {
+    if (el.disabled || el.hidden) return false;
+    const panel = el.closest ? el.closest('.modal-panel') : null;
+    return !panel || panel.classList.contains('active');
+  });
+}
+
+// Keeps Tab and Shift+Tab cycling inside the open dialog.
+function keepFocusInModal(e, container) {
+  const focusable = getFocusableElements(container);
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || !container.contains(active))) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (active === last || !container.contains(active))) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 function switchModalTab(targetTab) {
