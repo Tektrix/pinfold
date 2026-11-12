@@ -1520,7 +1520,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadOneTab').addEventListener('click', () => {
     const text = document.getElementById('exportOneTabTextarea').value;
-    ExportImport.downloadFile(`pinfold-export-${new Date().toISOString().slice(0, 10)}.txt`, text, 'text/plain');
+    ExportImport.downloadFile(`pinfold-export-${localDateStamp()}.txt`, text, 'text/plain');
   });
 
   document.getElementById('btnCopyMd').addEventListener('click', async () => {
@@ -1531,7 +1531,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadMd').addEventListener('click', () => {
     const text = document.getElementById('exportMdTextarea').value;
-    ExportImport.downloadFile(`pinfold-export-${new Date().toISOString().slice(0, 10)}.md`, text, 'text/markdown');
+    ExportImport.downloadFile(`pinfold-export-${localDateStamp()}.md`, text, 'text/markdown');
   });
 
   document.getElementById('btnCopyJson').addEventListener('click', async () => {
@@ -1542,7 +1542,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadJson').addEventListener('click', () => {
     const text = document.getElementById('exportJsonTextarea').value;
-    ExportImport.downloadFile(`pinfold-backup-${new Date().toISOString().slice(0, 10)}.json`, text, 'application/json');
+    ExportImport.downloadFile(`pinfold-backup-${localDateStamp()}.json`, text, 'application/json');
   });
 
   document.getElementById('btnExecuteImport').addEventListener('click', async () => {

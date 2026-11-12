@@ -92,6 +92,13 @@ function defaultFolderName(prefix, withTime = false, date = new Date()) {
   return `${prefix} · ${date.toLocaleString(undefined, opts)}`;
 }
 
+// YYYY-MM-DD in the local time zone, so export file names match the day the user sees
+function localDateStamp(date = new Date()) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 // Most recently used folders first; folders never saved into count from when they were made
 function sortFoldersByRecentUse(folders) {
   return [...folders].sort((a, b) => (b.lastUsedAt || b.createdAt || 0) - (a.lastUsedAt || a.createdAt || 0));
@@ -562,7 +569,7 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, defaultFolderName, localDateStamp, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
@@ -571,6 +578,7 @@ if (typeof module !== 'undefined' && module.exports) {
   globalThis.formatMemory = formatMemory;
   globalThis.pluralize = pluralize;
   globalThis.defaultFolderName = defaultFolderName;
+  globalThis.localDateStamp = localDateStamp;
   globalThis.sortFoldersByRecentUse = sortFoldersByRecentUse;
   globalThis.formatTimeAgo = formatTimeAgo;
   globalThis.formatFullDate = formatFullDate;
