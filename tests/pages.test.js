@@ -89,3 +89,20 @@ for (const page of PAGES) {
       `${page}.css styles ${styled.length} of ${classes.size} classes used in ${page}.html (need ${MIN_STYLED_CLASS_RATIO * 100}%)`);
   });
 }
+
+test('every options control is named by its visible label', () => {
+  const { html } = readPage('options');
+  const tags = [...html.matchAll(/<(select|input|textarea)\b[^>]*>/g)].map(m => m[0]);
+  assert.ok(tags.length >= 10, `found ${tags.length} controls on the options page`);
+  for (const tag of tags) {
+    assert.ok(/aria-label(ledby)?=/.test(tag), `control has an accessible name: ${tag.slice(0, 80)}`);
+  }
+});
+
+test('dashboard search and sort controls have accessible names', () => {
+  const { html } = readPage('dashboard');
+  for (const id of ['searchInput', 'sortSelect']) {
+    const tag = (html.match(new RegExp(`<(input|select)[^>]*id="${id}"[^>]*>`)) || [''])[0];
+    assert.ok(tag.includes('aria-label="'), `${id} has an aria-label`);
+  }
+});
