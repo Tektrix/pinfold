@@ -154,22 +154,26 @@ async function copyUrlWithFeedback(buttonEl, url) {
     buttonEl.innerHTML = SVG_ICONS.check;
     buttonEl.classList.add('copy-success');
     buttonEl.title = 'Copied!';
+    buttonEl.setAttribute('aria-label', 'Copied!');
     showToast('URL copied to clipboard');
     setTimeout(() => {
       buttonEl.innerHTML = originalIcon;
       buttonEl.classList.remove('copy-success');
       buttonEl.title = 'Copy URL';
+      buttonEl.setAttribute('aria-label', 'Copy URL');
     }, 1500);
   } catch (err) {
     const originalIcon = buttonEl.innerHTML;
     buttonEl.innerHTML = SVG_ICONS.close;
     buttonEl.classList.add('copy-error');
     buttonEl.title = 'Failed to copy';
+    buttonEl.setAttribute('aria-label', 'Failed to copy');
     showToast('Failed to copy URL');
     setTimeout(() => {
       buttonEl.innerHTML = originalIcon;
       buttonEl.classList.remove('copy-error');
       buttonEl.title = 'Copy URL';
+      buttonEl.setAttribute('aria-label', 'Copy URL');
     }, 1500);
   }
 }
@@ -231,7 +235,7 @@ function renderTreeView() {
     <span class="tree-node-label">All</span>
     <span class="tree-node-count">${totalTabs}</span>
     <div class="tree-item-actions">
-      <button class="tree-action-btn btn-add-subfolder" title="Add Folder">+</button>
+      <button class="tree-action-btn btn-add-subfolder" title="Add Folder" aria-label="Add Folder"><span aria-hidden="true">+</span></button>
     </div>
   `;
 
@@ -295,9 +299,9 @@ function createTreeFolderBranch(folder) {
     <span class="tree-node-label" title="${escapeHtml(folder.title)}">${escapeHtml(folder.title)}</span>
     <span class="tree-node-count">${folderTabsCount}</span>
     <div class="tree-item-actions">
-      <button class="tree-action-btn btn-edit-folder" title="Rename folder">${SVG_ICONS.edit}</button>
-      <button class="tree-action-btn btn-add-subfolder" title="Add Subfolder">+</button>
-      <button class="tree-action-btn delete btn-del-folder" title="Delete folder">✕</button>
+      <button class="tree-action-btn btn-edit-folder" title="Rename folder" aria-label="Rename folder">${SVG_ICONS.edit}</button>
+      <button class="tree-action-btn btn-add-subfolder" title="Add Subfolder" aria-label="Add Subfolder"><span aria-hidden="true">+</span></button>
+      <button class="tree-action-btn delete btn-del-folder" title="Delete folder" aria-label="Delete folder"><span aria-hidden="true">✕</span></button>
     </div>
   `;
 
@@ -660,14 +664,14 @@ function createOneTabGroupElement(group) {
 
     row.innerHTML = `
       <span class="tab-drag-dot" title="Drag to reorder">⋮⋮</span>
-      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
       <span class="tab-icon-box">${faviconHtml}</span>
 
       <a href="${escapeHtml(tab.url)}" class="tab-title-link" title="${escapeHtml(tab.url)}">
         ${escapeHtml(cleanTitle)}
       </a>
-      <button class="row-pencil-btn btn-edit-tab-name" title="Edit tab name">${SVG_ICONS.edit}</button>
-      <button class="row-copy-btn btn-copy-tab-url" title="Copy URL">${SVG_ICONS.copy}</button>
+      <button class="row-pencil-btn btn-edit-tab-name" title="Edit tab name" aria-label="Edit tab name">${SVG_ICONS.edit}</button>
+      <button class="row-copy-btn btn-copy-tab-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
       ${folder ? `<span class="group-folder-pill" style="font-size:10.5px; padding:1px 5px;">📁 ${escapeHtml(folder.title)}</span>` : ''}
       <span class="tab-row-meta" title="${dateStr}">${formatTimeAgo(group.createdAt)} (${dateStr})</span>
       <div class="tab-row-actions">
@@ -799,7 +803,7 @@ function createOneTabGroupElement(group) {
 
   groupEl.innerHTML = `
     <div class="group-title-row">
-      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
       <input 
         type="text" 
         class="group-title-text" 
@@ -953,13 +957,13 @@ function createTabCardElement(group, tab) {
       </div>
       <div class="tab-card-domain-row">
         <span class="tab-card-domain" title="${escapeHtml(tab.url)}">${escapeHtml(domain)}</span>
-        <button class="card-copy-btn btn-copy-card-url" title="Copy URL">${SVG_ICONS.copy}</button>
+        <button class="card-copy-btn btn-copy-card-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
       </div>
     </div>
     <div class="tab-card-footer">
       <div class="tab-card-footer-meta">
         <div class="tab-card-meta-left">
-          <button class="star-icon-btn btn-card-star ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+          <button class="star-icon-btn btn-card-star ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
           <span title="${dateStr}">${formatTimeAgo(group.createdAt)}</span>
         </div>
         ${folder ? `<span class="group-folder-pill" style="font-size:10px; padding:1px 4px;">📁 ${escapeHtml(folder.title)}</span>` : ''}
@@ -1122,10 +1126,10 @@ function createTabEntryElement(groupId, tab) {
     <a href="${escapeHtml(tab.url)}" class="tab-title-link" title="${escapeHtml(tab.url)}">
       ${escapeHtml(cleanTitle)}
     </a>
-    <button class="row-pencil-btn btn-edit-entry-title" title="Edit tab name">${SVG_ICONS.edit}</button>
-    <button class="row-copy-btn btn-copy-entry-url" title="Copy URL">${SVG_ICONS.copy}</button>
+    <button class="row-pencil-btn btn-edit-entry-title" title="Edit tab name" aria-label="Edit tab name">${SVG_ICONS.edit}</button>
+    <button class="row-copy-btn btn-copy-entry-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
     <div class="tab-actions-hover">
-      <button class="tab-mini-action delete-btn" title="Delete tab">✕</button>
+      <button class="tab-mini-action delete-btn" title="Delete tab" aria-label="Delete tab"><span aria-hidden="true">✕</span></button>
     </div>
   `;
 
