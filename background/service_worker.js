@@ -66,6 +66,13 @@ function setupContextMenus() {
     });
 
     chrome.contextMenus.create({
+      id: 'pinfold_sleep_tabs',
+      parentId: 'pinfold_main',
+      title: 'Sleep other tabs in this window',
+      contexts: ['page', 'action']
+    });
+
+    chrome.contextMenus.create({
       id: 'pinfold_separator',
       parentId: 'pinfold_main',
       type: 'separator',
@@ -98,6 +105,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     case 'pinfold_send_all_except_active':
       collapseTabs({ scope: 'ALL_EXCEPT_ACTIVE', windowId: tab ? tab.windowId : undefined });
       break;
+    case 'pinfold_sleep_tabs':
+      sleepOtherTabs(tab ? tab.windowId : undefined);
+      break;
     case 'pinfold_open_dashboard':
       openDashboard({ windowId: tab ? tab.windowId : undefined });
       break;
@@ -129,6 +139,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then((result) => sendResponse({ success: true, result }))
       .catch((err) => sendResponse({ success: false, error: err.message }));
     return true;
+  } else if (message.action === 'SLEEP_TABS') {
+    sleepOtherTabs(message.windowId)
+      .then((result) => sendResponse({ success: true, ...result }))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
   } else if (message.action === 'OPEN_DASHBOARD') {
     openDashboard()
       .then((tab) => sendResponse({ success: true, tab }))
@@ -145,6 +160,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 });
+
+// Whether Chrome can put this tab to sleep: not the tab in use, not already asleep,
+// not pinned or playing sound, not marked keep-awake, not incognito, and a real web
+// page — which also skips chrome:// pages, other extensions and the dashboard itself.
+function canSleepTab(tab) {
+  if (!tab || tab.active || tab.discarded || tab.pinned || tab.audible) return false;
+  if (tab.autoDiscardable === false) return false;
+  if (tab.incognito) return false;
+  const url = tab.url || '';
+  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('file://');
+}
+
+// Puts every other tab in the window to sleep with chrome.tabs.discard. A tab Chrome
+// still refuses is skipped, so one failure does not stop the rest.
+async function sleepOtherTabs(windowId) {
+  const tabs = await chrome.tabs.query({ windowId });
+  let sleptCount = 0;
+  for (const tab of tabs) {
+    if (!canSleepTab(tab)) continue;
+    try {
+      await chrome.tabs.discard(tab.id);
+      sleptCount++;
+    } catch (e) {
+      // Chrome refused this one; keep going with the rest.
+    }
+  }
+  return { sleptCount };
+}
 
 // "Open Dashboard" always opens a new tab in the window the user is in. Jumping to a
 // dashboard tab in another window looked like nothing happened. Collapsing tabs passes
