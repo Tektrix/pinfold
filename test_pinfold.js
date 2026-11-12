@@ -163,9 +163,12 @@ assert(DEFAULT_SETTINGS.openOnNewTab === false, 'openOnNewTab is defined in DEFA
 assert(DEFAULT_SETTINGS.sortBy === 'newest', 'sortBy is defined in DEFAULT_SETTINGS and defaults to newest');
 assert(DEFAULT_SETTINGS.confirmTabDelete === true, 'confirmTabDelete is defined in DEFAULT_SETTINGS and defaults to true');
 assert(DEFAULT_SETTINGS.capturePreviews === false, 'Page previews (screenshots) are off by default');
-
-
-
+console.log('\n--- 8. Accessible Names for Icon-only Buttons ---');
+const dashboardHtml = fs.readFileSync(path.join(__dirname, 'dashboard/dashboard.html'), 'utf8');
+for (const id of ['btnClearSearch', 'themeToggleBtn', 'btnHeaderSettings', 'btnCloseModal']) {
+  const tag = (dashboardHtml.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`)) || [''])[0];
+  assert(tag.includes('aria-label="'), `${id} has an aria-label`);
+}
 console.log('\n================================');
 console.log(`Tests Completed: ${passedTests} passed, ${failedTests} failed.`);
 if (failedTests > 0) {
