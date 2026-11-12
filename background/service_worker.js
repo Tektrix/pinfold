@@ -106,7 +106,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       collapseTabs({ scope: 'ALL_EXCEPT_ACTIVE', windowId: tab ? tab.windowId : undefined });
       break;
     case 'pinfold_sleep_tabs':
-      sleepOtherTabs(tab ? tab.windowId : undefined);
+      sleepOtherTabs(tab ? tab.windowId : undefined)
+        .catch((err) => console.error('Pinfold sleep tabs error:', err));
       break;
     case 'pinfold_open_dashboard':
       openDashboard({ windowId: tab ? tab.windowId : undefined });
@@ -175,13 +176,15 @@ function canSleepTab(tab) {
 // Puts every other tab in the window to sleep with chrome.tabs.discard. A tab Chrome
 // still refuses is skipped, so one failure does not stop the rest.
 async function sleepOtherTabs(windowId) {
-  const tabs = await chrome.tabs.query({ windowId });
+// With no window id, query() would ignore the key and return every window's
+  // tabs; currentWindow keeps the action in the window the user is looking at.
+  const tabs = await chrome.tabs.query(windowId === undefined ? { currentWindow: true } : { windowId });
   let sleptCount = 0;
   for (const tab of tabs) {
     if (!canSleepTab(tab)) continue;
     try {
-      await chrome.tabs.discard(tab.id);
-      sleptCount++;
+      const discarded = await chrome.tabs.discard(tab.id);
+      if (discarded && discarded.discarded) sleptCount++;
     } catch (e) {
       // Chrome refused this one; keep going with the rest.
     }
