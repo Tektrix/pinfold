@@ -426,7 +426,8 @@ body {
   height: 12px;
 }
 
-.tree-node-item:hover .tree-mini-edit-btn {
+.tree-node-item:hover .tree-mini-edit-btn,
+.tree-node-item:focus-within .tree-mini-edit-btn {
   display: inline-flex;
 }
 
@@ -460,8 +461,14 @@ body {
   gap: 2px;
 }
 
-.tree-node-item:hover .tree-item-actions {
+.tree-node-item:hover .tree-item-actions,
+.tree-node-item:focus-within .tree-item-actions {
   display: flex;
+}
+
+.tree-node-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
 }
 
 .tree-action-btn {
@@ -746,6 +753,12 @@ body[data-theme="light"] .clean-select option {
   white-space: nowrap;
 }
 
+
+.clean-select:focus-visible,
+.clean-mini-select:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
 
 body[data-theme="light"] .clean-mini-select {
   background-color: #FFFFFF;

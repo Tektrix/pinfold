@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New setting, off by default: "Skip Duplicate Tabs When Saving" saves a page only once when the same URL is open in several tabs. The duplicate tabs are still closed.
 - Delete a saved tab or group straight from the sidebar: hover it and click the trash icon, or select it and press Delete (the delete key on a Mac). It asks for the same confirmation as the tab list, and the next item is selected so you can keep going.
 - "Sleep other tabs" in the popup and the right-click menu: puts every other tab in the window to sleep with Chrome's own tab discarding, freeing memory without closing anything. Sleeping tabs stay in the tab bar and reload when clicked.
+- The Import tab has a "Choose file…" button, so you can restore a backup without copying and pasting it. Files over 20 MB are refused with a message.
+- The sidebar folder tree works from the keyboard: Tab to an item, Enter or Space to open it, and the Left and Right arrows to collapse or expand a folder. The edit and delete buttons also appear when an item has keyboard focus.
 
 ### Fixed
 
@@ -23,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Markdown exports now import back with each group's tags, and untitled groups stay untitled instead of becoming "Tab Group 1". Older Markdown exports still import as before.
 - "Open Pinfold on New Tab" now works for tabs opened with the "+" button or Ctrl+T. The 1.0.2 fix was not enough: Chrome marks those tabs as opened from the tab you were on, and Pinfold skipped every tab with an opener.
 - "Open Dashboard" now always opens a new dashboard tab in the window you are in. Before, it switched to a dashboard already open in another window, which looked like nothing happened. Collapsing tabs still reuses a dashboard tab that is already open in the same window.
+- Export and backup file names now use your local date. Before, an evening export could be named with tomorrow's date.
+- Accessibility: screen readers now announce toast messages, icon-only buttons have names, every setting is linked to its label, popup buttons and dashboard dropdowns show a focus ring when you use the keyboard, and the Export / Import dialog keeps keyboard focus inside it and returns it when closed.
 
 ## [1.0.2] - 2026-11-04
 

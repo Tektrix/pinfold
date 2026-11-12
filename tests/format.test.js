@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { formatMemory, formatTimeAgo, pluralize } = require('../utils/storage.js');
+const { formatMemory, formatTimeAgo, pluralize, localDateStamp } = require('../utils/storage.js');
 
 test('formatTimeAgo handles relative-time boundaries', (t) => {
   const now = Date.now();
@@ -61,4 +61,13 @@ test('pluralize handles zero, one, and multiple counts', () => {
   assert.strictEqual(pluralize(0, 'tab'), 'tabs');
   assert.strictEqual(pluralize(1, 'tab'), 'tab');
   assert.strictEqual(pluralize(2, 'tab'), 'tabs');
+});
+
+
+test('localDateStamp uses the local calendar date with zero padding', () => {
+  // 23:30 local: the UTC date is already tomorrow in timezones ahead of UTC,
+     // but the stamp must stay on the local date
+     assert.strictEqual(localDateStamp(new Date(2026, 10, 5, 23, 30)), '2026-11-05');
+  assert.strictEqual(localDateStamp(new Date(2026, 0, 9, 0, 15)), '2026-01-09');
+  assert.strictEqual(localDateStamp(new Date(2026, 11, 25, 12, 0)), '2026-12-25');
 });

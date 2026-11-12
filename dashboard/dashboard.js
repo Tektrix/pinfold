@@ -154,22 +154,26 @@ async function copyUrlWithFeedback(buttonEl, url) {
     buttonEl.innerHTML = SVG_ICONS.check;
     buttonEl.classList.add('copy-success');
     buttonEl.title = 'Copied!';
+    buttonEl.setAttribute('aria-label', 'Copied!');
     showToast('URL copied to clipboard');
     setTimeout(() => {
       buttonEl.innerHTML = originalIcon;
       buttonEl.classList.remove('copy-success');
       buttonEl.title = 'Copy URL';
+      buttonEl.setAttribute('aria-label', 'Copy URL');
     }, 1500);
   } catch (err) {
     const originalIcon = buttonEl.innerHTML;
     buttonEl.innerHTML = SVG_ICONS.close;
     buttonEl.classList.add('copy-error');
     buttonEl.title = 'Failed to copy';
+    buttonEl.setAttribute('aria-label', 'Failed to copy');
     showToast('Failed to copy URL');
     setTimeout(() => {
       buttonEl.innerHTML = originalIcon;
       buttonEl.classList.remove('copy-error');
       buttonEl.title = 'Copy URL';
+      buttonEl.setAttribute('aria-label', 'Copy URL');
     }, 1500);
   }
 }
@@ -211,8 +215,30 @@ function updateSidebarCountsAndMemory() {
   document.getElementById('sidebarRamSaved').textContent = `~${formatMemory(totalRamMB)}`;
 }
 
+// Keyboard support for a sidebar tree item: Enter and Space activate it like a
+// click, and folders also take Arrow Right to expand and Arrow Left to collapse.
+// Events from the item's own buttons are left to those buttons.
+function setupTreeItemKeyboard(item, { onToggle = null, isCollapsed = false } = {}) {
+  item.addEventListener('keydown', (e) => {
+    if (e.target !== item) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      item.click();
+    } else if (onToggle && e.key === 'ArrowRight' && isCollapsed) {
+      e.preventDefault();
+      onToggle();
+    } else if (onToggle && e.key === 'ArrowLeft' && !isCollapsed) {
+      e.preventDefault();
+      onToggle();
+    }
+  });
+}
+
 function renderTreeView() {
   const container = document.getElementById('treeViewContainer');
+  // The rebuild drops keyboard focus; remember which item had it and restore it below.
+  const focusKey = document.activeElement && document.activeElement.dataset
+    ? document.activeElement.dataset.focusKey : null;
   container.innerHTML = '';
 
   const totalTabs = state.groups.reduce((acc, g) => acc + (g.tabs ? g.tabs.length : 0), 0);
@@ -225,13 +251,18 @@ function renderTreeView() {
 
   const rootItem = document.createElement('div');
   rootItem.className = `tree-node-item ${isAllActive ? 'active' : ''}`;
+  rootItem.setAttribute('tabindex', '0');
+  rootItem.setAttribute('role', 'treeitem');
+  rootItem.setAttribute('aria-expanded', String(!isRootCollapsed));
+  if (isAllActive) rootItem.setAttribute('aria-current', 'true');
+  rootItem.dataset.focusKey = 'root';
   rootItem.innerHTML = `
     <span class="tree-toggle-arrow ${isRootCollapsed ? 'collapsed' : ''}">▼</span>
     <span class="tree-node-icon">📁</span>
     <span class="tree-node-label">All</span>
     <span class="tree-node-count">${totalTabs}</span>
     <div class="tree-item-actions">
-      <button class="tree-action-btn btn-add-subfolder" title="Add Folder">+</button>
+      <button class="tree-action-btn btn-add-subfolder" title="Add Folder" aria-label="Add Folder"><span aria-hidden="true">+</span></button>
     </div>
   `;
 
@@ -257,6 +288,7 @@ function renderTreeView() {
     showToast('Folder created');
   });
 
+  setupTreeItemKeyboard(rootItem, { onToggle: () => rootToggle.click(), isCollapsed: isRootCollapsed });
   setupTreeDropTarget(rootItem, null);
   rootNodeGroup.appendChild(rootItem);
 
@@ -277,6 +309,11 @@ function renderTreeView() {
 
   rootNodeGroup.appendChild(rootChildrenContainer);
   container.appendChild(rootNodeGroup);
+
+  if (focusKey) {
+    const restored = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
+    if (restored) restored.focus();
+  }
 }
 
 function createTreeFolderBranch(folder) {
@@ -289,15 +326,21 @@ function createTreeFolderBranch(folder) {
 
   const folderItem = document.createElement('div');
   folderItem.className = `tree-node-item ${isFolderActive ? 'active' : ''}`;
+  folderItem.setAttribute('tabindex', '0');
+  folderItem.setAttribute('role', 'treeitem');
+  folderItem.setAttribute('aria-expanded', String(!isCollapsed));
+  if (isFolderActive) folderItem.setAttribute('aria-current', 'true');
+  folderItem.dataset.folderId = folder.id;
+  folderItem.dataset.focusKey = `folder:${folder.id}`;
   folderItem.innerHTML = `
     <span class="tree-toggle-arrow ${isCollapsed ? 'collapsed' : ''}">▼</span>
     <span class="tree-node-icon">📁</span>
     <span class="tree-node-label" title="${escapeHtml(folder.title)}">${escapeHtml(folder.title)}</span>
     <span class="tree-node-count">${folderTabsCount}</span>
     <div class="tree-item-actions">
-      <button class="tree-action-btn btn-edit-folder" title="Rename folder">${SVG_ICONS.edit}</button>
-      <button class="tree-action-btn btn-add-subfolder" title="Add Subfolder">+</button>
-      <button class="tree-action-btn delete btn-del-folder" title="Delete folder">✕</button>
+      <button class="tree-action-btn btn-edit-folder" title="Rename folder" aria-label="Rename folder">${SVG_ICONS.edit}</button>
+      <button class="tree-action-btn btn-add-subfolder" title="Add Subfolder" aria-label="Add Subfolder"><span aria-hidden="true">+</span></button>
+      <button class="tree-action-btn delete btn-del-folder" title="Delete folder" aria-label="Delete folder"><span aria-hidden="true">✕</span></button>
     </div>
   `;
 
@@ -349,6 +392,10 @@ function createTreeFolderBranch(folder) {
     showToast('Folder deleted');
   });
 
+  setupTreeItemKeyboard(folderItem, {
+    onToggle: () => folderItem.querySelector('.tree-toggle-arrow').click(),
+    isCollapsed
+  });
   setupTreeDropTarget(folderItem, folder.id);
   branchGroup.appendChild(folderItem);
 
@@ -375,7 +422,11 @@ function createTreeGroupLeaf(group) {
   const leafItem = document.createElement('div');
   const isGroupActive = state.activeFilter === `group:${group.id}`;
   leafItem.className = `tree-node-item ${isGroupActive ? 'active' : ''}`;
+  leafItem.setAttribute('tabindex', '0');
+  leafItem.setAttribute('role', 'treeitem');
+  if (isGroupActive) leafItem.setAttribute('aria-current', 'true');
   leafItem.dataset.groupId = group.id;
+  leafItem.dataset.focusKey = `group:${group.id}`;
   leafItem.draggable = true;
 
   const tabCount = group.tabs ? group.tabs.length : 0;
@@ -401,6 +452,7 @@ function createTreeGroupLeaf(group) {
     <button class="tree-mini-edit-btn tree-mini-delete-btn btn-delete-tree-leaf" title="Delete" aria-label="Delete ${escapeHtml(name)}">${SVG_ICONS.trash}</button>
   `;
 
+  setupTreeItemKeyboard(leafItem);
   attachFaviconErrorHandlers(leafItem);
 
   const editLeafBtn = leafItem.querySelector('.btn-edit-tree-leaf');
@@ -660,14 +712,14 @@ function createOneTabGroupElement(group) {
 
     row.innerHTML = `
       <span class="tab-drag-dot" title="Drag to reorder">⋮⋮</span>
-      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
       <span class="tab-icon-box">${faviconHtml}</span>
 
       <a href="${escapeHtml(tab.url)}" class="tab-title-link" title="${escapeHtml(tab.url)}">
         ${escapeHtml(cleanTitle)}
       </a>
-      <button class="row-pencil-btn btn-edit-tab-name" title="Edit tab name">${SVG_ICONS.edit}</button>
-      <button class="row-copy-btn btn-copy-tab-url" title="Copy URL">${SVG_ICONS.copy}</button>
+      <button class="row-pencil-btn btn-edit-tab-name" title="Edit tab name" aria-label="Edit tab name">${SVG_ICONS.edit}</button>
+      <button class="row-copy-btn btn-copy-tab-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
       ${folder ? `<span class="group-folder-pill" style="font-size:10.5px; padding:1px 5px;">📁 ${escapeHtml(folder.title)}</span>` : ''}
       <span class="tab-row-meta" title="${dateStr}">${formatTimeAgo(group.createdAt)} (${dateStr})</span>
       <div class="tab-row-actions">
@@ -799,7 +851,7 @@ function createOneTabGroupElement(group) {
 
   groupEl.innerHTML = `
     <div class="group-title-row">
-      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+      <button class="star-icon-btn btn-star-group ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
       <input 
         type="text" 
         class="group-title-text" 
@@ -953,13 +1005,13 @@ function createTabCardElement(group, tab) {
       </div>
       <div class="tab-card-domain-row">
         <span class="tab-card-domain" title="${escapeHtml(tab.url)}">${escapeHtml(domain)}</span>
-        <button class="card-copy-btn btn-copy-card-url" title="Copy URL">${SVG_ICONS.copy}</button>
+        <button class="card-copy-btn btn-copy-card-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
       </div>
     </div>
     <div class="tab-card-footer">
       <div class="tab-card-footer-meta">
         <div class="tab-card-meta-left">
-          <button class="star-icon-btn btn-card-star ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}">${group.starred ? '⭐' : '☆'}</button>
+          <button class="star-icon-btn btn-card-star ${group.starred ? 'starred' : ''}" title="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${group.starred ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${group.starred}"><span aria-hidden="true">${group.starred ? '⭐' : '☆'}</span></button>
           <span title="${dateStr}">${formatTimeAgo(group.createdAt)}</span>
         </div>
         ${folder ? `<span class="group-folder-pill" style="font-size:10px; padding:1px 4px;">📁 ${escapeHtml(folder.title)}</span>` : ''}
@@ -1122,10 +1174,10 @@ function createTabEntryElement(groupId, tab) {
     <a href="${escapeHtml(tab.url)}" class="tab-title-link" title="${escapeHtml(tab.url)}">
       ${escapeHtml(cleanTitle)}
     </a>
-    <button class="row-pencil-btn btn-edit-entry-title" title="Edit tab name">${SVG_ICONS.edit}</button>
-    <button class="row-copy-btn btn-copy-entry-url" title="Copy URL">${SVG_ICONS.copy}</button>
+    <button class="row-pencil-btn btn-edit-entry-title" title="Edit tab name" aria-label="Edit tab name">${SVG_ICONS.edit}</button>
+    <button class="row-copy-btn btn-copy-entry-url" title="Copy URL" aria-label="Copy URL">${SVG_ICONS.copy}</button>
     <div class="tab-actions-hover">
-      <button class="tab-mini-action delete-btn" title="Delete tab">✕</button>
+      <button class="tab-mini-action delete-btn" title="Delete tab" aria-label="Delete tab"><span aria-hidden="true">✕</span></button>
     </div>
   `;
 
@@ -1385,6 +1437,11 @@ function bindEventListeners() {
   });
 
   window.addEventListener('keydown', (e) => {
+    // Keep Tab inside the Export / Import dialog while it is open
+        if (e.key === 'Tab' && !document.getElementById('exportImportModal').classList.contains('hidden')) {
+          keepFocusInModal(e, document.getElementById('exportImportModal'));
+          return;
+        }
     const typingInField = e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
     if (((e.key === '/' && !typingInField) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
       e.preventDefault();
@@ -1520,7 +1577,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadOneTab').addEventListener('click', () => {
     const text = document.getElementById('exportOneTabTextarea').value;
-    ExportImport.downloadFile(`pinfold-export-${new Date().toISOString().slice(0, 10)}.txt`, text, 'text/plain');
+    ExportImport.downloadFile(`pinfold-export-${localDateStamp()}.txt`, text, 'text/plain');
   });
 
   document.getElementById('btnCopyMd').addEventListener('click', async () => {
@@ -1531,7 +1588,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadMd').addEventListener('click', () => {
     const text = document.getElementById('exportMdTextarea').value;
-    ExportImport.downloadFile(`pinfold-export-${new Date().toISOString().slice(0, 10)}.md`, text, 'text/markdown');
+    ExportImport.downloadFile(`pinfold-export-${localDateStamp()}.md`, text, 'text/markdown');
   });
 
   document.getElementById('btnCopyJson').addEventListener('click', async () => {
@@ -1542,7 +1599,7 @@ function bindEventListeners() {
 
   document.getElementById('btnDownloadJson').addEventListener('click', () => {
     const text = document.getElementById('exportJsonTextarea').value;
-    ExportImport.downloadFile(`pinfold-backup-${new Date().toISOString().slice(0, 10)}.json`, text, 'application/json');
+    ExportImport.downloadFile(`pinfold-backup-${localDateStamp()}.json`, text, 'application/json');
   });
 
   document.getElementById('btnExecuteImport').addEventListener('click', async () => {
@@ -1567,9 +1624,26 @@ function bindEventListeners() {
       alert('Failed to import: ' + err.message);
     }
   });
+  document.getElementById('btnChooseImportFile').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+
+  document.getElementById('importFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('That file is too large to import (max 20 MB)');
+      return;
+    }
+    document.getElementById('importInputTextarea').value = await file.text();
+  });
 }
 
+let modalReturnFocus = null;
+
 function openExportImportModal(defaultTab = 'export-onetab') {
+  modalReturnFocus = document.activeElement;
   const modal = document.getElementById('exportImportModal');
   modal.classList.remove('hidden');
 
@@ -1578,10 +1652,46 @@ function openExportImportModal(defaultTab = 'export-onetab') {
   document.getElementById('exportJsonTextarea').value = ExportImport.exportToJSON(state.groups);
 
   switchModalTab(defaultTab);
-}
 
+  if (defaultTab === 'import-tab') {
+    document.getElementById('importInputTextarea').focus();
+  } else {
+    const activeTabBtn = document.querySelector('.modal-nav-tab.active');
+    if (activeTabBtn) activeTabBtn.focus();
+  }
+}
 function closeExportImportModal() {
   document.getElementById('exportImportModal').classList.add('hidden');
+  if (modalReturnFocus && document.contains(modalReturnFocus)) {
+    modalReturnFocus.focus();
+  }
+  modalReturnFocus = null;
+}
+
+// The elements of a container that can take keyboard focus, skipping disabled
+// controls, hidden inputs and anything on an inactive modal panel.
+function getFocusableElements(container) {
+  return [...container.querySelectorAll('button, input, select, textarea, [tabindex]')].filter(el => {
+    if (el.disabled || el.hidden) return false;
+    const panel = el.closest ? el.closest('.modal-panel') : null;
+    return !panel || panel.classList.contains('active');
+  });
+}
+
+// Keeps Tab and Shift+Tab cycling inside the open dialog.
+function keepFocusInModal(e, container) {
+  const focusable = getFocusableElements(container);
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || !container.contains(active))) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (active === last || !container.contains(active))) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 function switchModalTab(targetTab) {
