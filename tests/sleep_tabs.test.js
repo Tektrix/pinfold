@@ -101,7 +101,7 @@ test('sleepOtherTabs without a window id stays in the current window', async () 
   const { sleepOtherTabs, calls } = loadSleepTabs(tabs);
   const result = await sleepOtherTabs(undefined);
   assert.deepEqual(calls, [3]);
-  assert.deepEqual(JSON.parse(JSON.stringify(result)), { sleeptCount: 1 });
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), { sleptCount: 1 });
 });
 
 test('sleepOtherTabs does not count a tab Chrome did not actually discard', async () => {
@@ -109,6 +109,6 @@ test('sleepOtherTabs does not count a tab Chrome did not actually discard', asyn
   const { sleepOtherTabs, calls } = loadSleepTabs(tabs, [], [4]);
   const result = await sleepOtherTabs(1);
   assert.deepEqual(calls, [3, 4]);
-  assert.deepEqual(JSON.parse(JSON.stringify(result)), { sleeptCount: 1 });
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), { sleptCount: 1 });
 });
   
