@@ -37,10 +37,10 @@
         </div>
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Interface Theme</span>
-            <span class="setting-hint">Select a color scheme tailored for developer ergonomics.</span>
+            <span class="setting-label" id="label-settingTheme">Interface Theme</span>
+            <span class="setting-hint" id="hint-settingTheme">Select a color scheme tailored for developer ergonomics.</span>
           </div>
-          <select id="settingTheme" class="custom-select">
+          <select id="settingTheme" aria-labelledby="label-settingTheme" aria-describedby="hint-settingTheme" class="custom-select">
             <option value="system">Follow System Preference (Default)</option>
             <option value="dark">Dark Theme</option>
             <option value="light">Light Theme</option>
@@ -48,10 +48,10 @@
         </div>
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Default View Mode</span>
-            <span class="setting-hint">Choose between compact List view or Card grid with visual previews.</span>
+            <span class="setting-label" id="label-settingViewMode">Default View Mode</span>
+            <span class="setting-hint" id="hint-settingViewMode">Choose between compact List view or Card grid with visual previews.</span>
           </div>
-          <select id="settingViewMode" class="custom-select">
+          <select id="settingViewMode" aria-labelledby="label-settingViewMode" aria-describedby="hint-settingViewMode" class="custom-select">
             <option value="list">List View (Compact, with hover preview)</option>
             <option value="cards">Cards Grid (Shows page previews if enabled)</option>
           </select>
@@ -66,10 +66,10 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">On Clicking a Saved Tab</span>
-            <span class="setting-hint">Choose whether restoring a tab removes it from your saved list.</span>
+            <span class="setting-label" id="label-settingKeepOnRestore">On Clicking a Saved Tab</span>
+            <span class="setting-hint" id="hint-settingKeepOnRestore">Choose whether restoring a tab removes it from your saved list.</span>
           </div>
-          <select id="settingKeepOnRestore" class="custom-select">
+          <select id="settingKeepOnRestore" aria-labelledby="label-settingKeepOnRestore" aria-describedby="hint-settingKeepOnRestore" class="custom-select">
             <option value="false">Remove tab from Pinfold (Standard OneTab behavior)</option>
             <option value="true">Keep tab in Pinfold until manually deleted</option>
           </select>
@@ -77,10 +77,10 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">"Restore All" Target Window</span>
-            <span class="setting-hint">Where to open restored tab groups.</span>
+            <span class="setting-label" id="label-settingRestoreWindow">"Restore All" Target Window</span>
+            <span class="setting-hint" id="hint-settingRestoreWindow">Where to open restored tab groups.</span>
           </div>
-          <select id="settingRestoreWindow" class="custom-select">
+          <select id="settingRestoreWindow" aria-labelledby="label-settingRestoreWindow" aria-describedby="hint-settingRestoreWindow" class="custom-select">
             <option value="false">Open in current window</option>
             <option value="true">Open in a clean new window</option>
           </select>
@@ -88,10 +88,10 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Pinned Tabs Protection</span>
-            <span class="setting-hint">Should pinned tabs be preserved when collapsing tabs?</span>
+            <span class="setting-label" id="label-settingPinnedTabs">Pinned Tabs Protection</span>
+            <span class="setting-hint" id="hint-settingPinnedTabs">Should pinned tabs be preserved when collapsing tabs?</span>
           </div>
-          <select id="settingPinnedTabs" class="custom-select">
+          <select id="settingPinnedTabs" aria-labelledby="label-settingPinnedTabs" aria-describedby="hint-settingPinnedTabs" class="custom-select">
             <option value="ignore">Ignore pinned tabs (Keep them open in browser)</option>
             <option value="include">Include pinned tabs in collapse</option>
           </select>
@@ -99,77 +99,77 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Auto-open Dashboard on Collapse</span>
-            <span class="setting-hint">Open the Pinfold Dashboard in the current window when you collapse tabs. If a dashboard is already open in that window, it will be reused.</span>
+            <span class="setting-label" id="label-settingAutoOpenDash">Auto-open Dashboard on Collapse</span>
+            <span class="setting-hint" id="hint-settingAutoOpenDash">Open the Pinfold Dashboard in the current window when you collapse tabs. If a dashboard is already open in that window, it will be reused.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingAutoOpenDash" checked>
+            <input type="checkbox" id="settingAutoOpenDash" aria-labelledby="label-settingAutoOpenDash" aria-describedby="hint-settingAutoOpenDash" checked>
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Put Each Collapse All into a New Folder</span>
-            <span class="setting-hint">"Collapse All Tabs" saves the window's tabs into a new folder named after the date and time, such as "Window · Nov 4, 3:10 PM". Choosing a folder in the popup still takes priority.</span>
+            <span class="setting-label" id="label-settingCollapseAllIntoNewFolder">Put Each Collapse All into a New Folder</span>
+            <span class="setting-hint" id="hint-settingCollapseAllIntoNewFolder">"Collapse All Tabs" saves the window's tabs into a new folder named after the date and time, such as "Window · Nov 4, 3:10 PM". Choosing a folder in the popup still takes priority.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingCollapseAllIntoNewFolder">
+            <input type="checkbox" id="settingCollapseAllIntoNewFolder" aria-labelledby="label-settingCollapseAllIntoNewFolder" aria-describedby="hint-settingCollapseAllIntoNewFolder">
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Skip Duplicate Tabs When Saving</span>
-            <span class="setting-hint">If the same page is open in more than one tab, save it once. The duplicate tabs are still closed.</span>
+            <span class="setting-label" id="label-settingSkipDuplicateTabs">Skip Duplicate Tabs When Saving</span>
+            <span class="setting-hint" id="hint-settingSkipDuplicateTabs">If the same page is open in more than one tab, save it once. The duplicate tabs are still closed.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingSkipDuplicateTabs">
+            <input type="checkbox" id="settingSkipDuplicateTabs" aria-labelledby="label-settingSkipDuplicateTabs" aria-describedby="hint-settingSkipDuplicateTabs">
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Open Pinfold on New Tab</span>
-            <span class="setting-hint">Automatically open Pinfold Dashboard whenever you click the "+" button or open a new tab.</span>
+            <span class="setting-label" id="label-settingOpenOnNewTab">Open Pinfold on New Tab</span>
+            <span class="setting-hint" id="hint-settingOpenOnNewTab">Automatically open Pinfold Dashboard whenever you click the "+" button or open a new tab.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingOpenOnNewTab">
+            <input type="checkbox" id="settingOpenOnNewTab" aria-labelledby="label-settingOpenOnNewTab" aria-describedby="hint-settingOpenOnNewTab">
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Capture Page Previews</span>
-            <span class="setting-hint">Off by default. When on, collapsing briefly switches to each tab and saves a small screenshot for Cards view, kept only on this device and never exported. Your browser will ask for permission to access all sites.</span>
+            <span class="setting-label" id="label-settingCapturePreviews">Capture Page Previews</span>
+            <span class="setting-hint" id="hint-settingCapturePreviews">Off by default. When on, collapsing briefly switches to each tab and saves a small screenshot for Cards view, kept only on this device and never exported. Your browser will ask for permission to access all sites.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingCapturePreviews">
+            <input type="checkbox" id="settingCapturePreviews" aria-labelledby="label-settingCapturePreviews" aria-describedby="hint-settingCapturePreviews">
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Confirm Tab Deletion</span>
-            <span class="setting-hint">Ask for confirmation before deleting an individual tab.</span>
+            <span class="setting-label" id="label-settingConfirmTabDelete">Confirm Tab Deletion</span>
+            <span class="setting-hint" id="hint-settingConfirmTabDelete">Ask for confirmation before deleting an individual tab.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingConfirmTabDelete" checked>
+            <input type="checkbox" id="settingConfirmTabDelete" aria-labelledby="label-settingConfirmTabDelete" aria-describedby="hint-settingConfirmTabDelete" checked>
             <span class="slider"></span>
           </label>
         </div>
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Confirm Group Deletion</span>
-            <span class="setting-hint">Ask for confirmation before deleting an unlocked tab group.</span>
+            <span class="setting-label" id="label-settingConfirmDelete">Confirm Group Deletion</span>
+            <span class="setting-hint" id="hint-settingConfirmDelete">Ask for confirmation before deleting an unlocked tab group.</span>
           </div>
           <label class="switch-toggle">
-            <input type="checkbox" id="settingConfirmDelete" checked>
+            <input type="checkbox" id="settingConfirmDelete" aria-labelledby="label-settingConfirmDelete" aria-describedby="hint-settingConfirmDelete" checked>
             <span class="slider"></span>
           </label>
         </div>
@@ -183,7 +183,7 @@
           <p class="card-subtitle">Tabs matching these domain names will not be closed or collapsed automatically.</p>
         </div>
         <div class="setting-item-block">
-          <textarea id="settingExcludedDomains" class="textarea-excluded" placeholder="youtube.com&#10;spotify.com&#10;meet.google.com&#10;localhost:3000" spellcheck="false"></textarea>
+          <textarea id="settingExcludedDomains" class="textarea-excluded" aria-label="Excluded domains" placeholder="youtube.com&#10;spotify.com&#10;meet.google.com&#10;localhost:3000" spellcheck="false"></textarea>
           <span class="field-help-text">Enter one domain per line (e.g. <code>spotify.com</code>, <code>meet.google.com</code>, <code>localhost</code>).</span>
         </div>
       </div>
