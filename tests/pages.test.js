@@ -89,3 +89,13 @@ for (const page of PAGES) {
       `${page}.css styles ${styled.length} of ${classes.size} classes used in ${page}.html (need ${MIN_STYLED_CLASS_RATIO * 100}%)`);
   });
 }
+
+test('toast containers are live regions so screen readers announce toasts', () => {
+  for (const page of ['dashboard', 'options']) {
+    const { html } = readPage(page);
+    const match = html.match(/<div id="toastContainer"[^>]*>/);
+    assert.ok(match, `${page}.html has a toast container`);
+    assert.ok(match[0].includes('role="status"'), `${page} toast container has role="status"`);
+    assert.ok(match[0].includes('aria-live="polite"'), `${page} toast container has aria-live="polite"`);
+  }
+});

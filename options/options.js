@@ -202,7 +202,7 @@ function showToast(message) {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = `<span class="toast-icon">${SVG_ICONS.check}</span><span class="toast-text"></span>`;
+  toast.innerHTML = `<span class="toast-icon" aria-hidden="true">${SVG_ICONS.check}</span><span class="toast-text"></span>`;
   toast.querySelector('.toast-text').textContent = message;
 
   container.appendChild(toast);
