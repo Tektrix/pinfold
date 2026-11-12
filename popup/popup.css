@@ -192,6 +192,12 @@ body {
   white-space: nowrap;
 }
 
+.action-row-btn:focus-visible,
+.action-triplet-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
+
 .action-triplet-btn:hover {
   background-color: var(--bg-hover);
 }

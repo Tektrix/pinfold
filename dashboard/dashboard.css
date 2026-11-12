@@ -747,6 +747,12 @@ body[data-theme="light"] .clean-select option {
 }
 
 
+.clean-select:focus-visible,
+.clean-mini-select:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
+
 body[data-theme="light"] .clean-mini-select {
   background-color: #FFFFFF;
   color-scheme: light;
