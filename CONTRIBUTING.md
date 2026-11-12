@@ -43,7 +43,14 @@ This runs `node test_pinfold.js` (manifest, icons, a scan for network calls and 
 | `options/` | Settings page |
 | `utils/storage.js` | `PinfoldStorage`: all reads and writes of stored data, settings defaults, `isSafeTabUrl` |
 | `utils/export_import.js` | OneTab, Markdown and JSON export and import parsing |
+| `utils/groups.js` | Group display name and sorting helpers (`getGroupDisplayName`, `compareGroups`) |
 | `utils/icons.js` | Inline SVG icons and small helpers |
+| `icons/` | Extension icons (16, 32, 48, 128 px) |
+| `generate_icons.js` | Script that regenerates the PNG icons |
+| `scripts/package.js` | Builds `dist/pinfold-<version>.zip` for the Chrome Web Store and Edge Add-ons |
+| `scripts/build-privacy-page.js` | Builds `site/privacy.html` from `PRIVACY.md` |
+| `site/` | Static landing and privacy site (served at `pinfold.page`) |
+| `store/` | Chrome Web Store and Edge Add-ons listing text, promo tiles, and screenshots |
 | `test_pinfold.js`, `tests/` | Validation script and unit tests |
 
 ## Rules the code depends on
