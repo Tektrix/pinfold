@@ -142,6 +142,13 @@ Imports can be merged with your existing tabs or replace them. Imported items ge
 - **No sync.** Data stays in one browser profile on one device. Use export/import to move it.
 - Excluded domains and the pinned-tab setting apply to the multi-tab actions. "Save the current tab" always saves the tab you asked for.
 - Some browser-internal pages may refuse to reopen. Tabs that fail to open stay in your list.
+
+---
+
+## Development
+
+There is no build step and no dependencies: plain JavaScript, HTML and CSS. Edit the files and click the reload icon in `chrome://extensions`.
+
 ```
 manifest.json
 background/service_worker.js   Context menus, shortcuts, saving and restoring tabs, preview capture, badge
@@ -174,11 +181,6 @@ This runs both the validation script and the unit test suite:
 node test_pinfold.js
 node --test "tests/*.test.js"
 ```
-
-
----
-
-## Development
 
 `npm run package` builds the store zip in `dist/`.
 
