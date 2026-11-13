@@ -281,9 +281,9 @@ function renderTreeView() {
 
   rootItem.querySelector('.btn-add-subfolder').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const title = prompt('Enter folder name (e.g. Work, Reference):');
+    const title = cleanFolderTitle(prompt('Enter folder name (e.g. Work, Reference):'));
     if (!title) return;
-    await PinfoldStorage.addFolder(title.trim(), null);
+    await PinfoldStorage.addFolder(title, null);
     await refreshData();
     showToast('Folder created');
   });
@@ -346,15 +346,14 @@ function createTreeFolderBranch(folder) {
 
   folderItem.querySelector('.btn-edit-folder').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const newTitle = prompt('Rename folder:', folder.title);
-    if (newTitle !== null && newTitle.trim()) {
-      await PinfoldStorage.updateFolder(folder.id, { title: newTitle.trim() });
-      if (state.activeFilter === `folder:${folder.id}`) {
-        document.getElementById('currentViewTitle').textContent = newTitle.trim();
-      }
-      await refreshData();
-      showToast('Folder renamed');
+    const newTitle = cleanFolderTitle(prompt('Rename folder:', folder.title));
+    if (!newTitle) return;
+    await PinfoldStorage.updateFolder(folder.id, { title: newTitle });
+    if (state.activeFilter === `folder:${folder.id}`) {
+      document.getElementById('currentViewTitle').textContent = newTitle;
     }
+    await refreshData();
+    showToast('Folder renamed');
   });
 
   folderItem.querySelector('.tree-toggle-arrow').addEventListener('click', async (e) => {
@@ -371,9 +370,9 @@ function createTreeFolderBranch(folder) {
 
   folderItem.querySelector('.btn-add-subfolder').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const title = prompt(`Enter subfolder name inside "${folder.title}":`);
+    const title = cleanFolderTitle(prompt(`Enter subfolder name inside "${folder.title}":`));
     if (!title) return;
-    await PinfoldStorage.addFolder(title.trim(), folder.id);
+    await PinfoldStorage.addFolder(title, folder.id);
     if (folder.collapsed) {
       await PinfoldStorage.updateFolder(folder.id, { collapsed: false });
     }
@@ -1405,9 +1404,9 @@ function bindEventListeners() {
   });
 
   document.getElementById('btnNewRootFolder').addEventListener('click', async () => {
-    const title = prompt('Enter folder name (e.g. Work, Reference, Projects):');
+    const title = cleanFolderTitle(prompt('Enter folder name (e.g. Work, Reference, Projects):'));
     if (!title) return;
-    await PinfoldStorage.addFolder(title.trim(), null);
+    await PinfoldStorage.addFolder(title, null);
     await refreshData();
     showToast('Folder created');
   });
@@ -1546,9 +1545,9 @@ function bindEventListeners() {
     if (folder) await fileJustSavedGroups(folder.id, folder.title || 'Untitled folder');
   });
   document.getElementById('btnJustSavedNewFolder').addEventListener('click', async () => {
-    const title = prompt('New folder name:', defaultFolderName('Tabs'));
-    if (title === null || !title.trim()) return;
-    const folder = await PinfoldStorage.addFolder(title.trim().slice(0, 100));
+    const title = cleanFolderTitle(prompt('New folder name:', defaultFolderName('Tabs')));
+    if (!title) return;
+    const folder = await PinfoldStorage.addFolder(title);
     await fileJustSavedGroups(folder.id, folder.title);
   });
   document.getElementById('btnJustSavedDismiss').addEventListener('click', async () => {
