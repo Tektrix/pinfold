@@ -1,6 +1,14 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { formatMemory, formatTimeAgo, pluralize, localDateStamp, cleanFolderTitle } = require('../utils/storage.js');
+const {
+  formatMemory,
+  formatTimeAgo,
+  pluralize,
+  localDateStamp,
+  cleanFolderTitle,
+  generateId,
+  formatFullDate
+} = require('../utils/storage.js');
 
 test('formatTimeAgo handles relative-time boundaries', (t) => {
   const now = Date.now();
@@ -93,4 +101,31 @@ test('cleanFolderTitle trims, caps to 100 characters and rejects empty or non-st
   assert.strictEqual(cleanFolderTitle(undefined), '');
   assert.strictEqual(cleanFolderTitle(123), '');
   assert.strictEqual(cleanFolderTitle('   ' + 'B'.repeat(150) + '   '), 'B'.repeat(100));
+});
+
+
+test('generateId returns a non-empty string', () => {
+  const id = generateId();
+
+  assert.strictEqual(typeof id, 'string');
+  assert.ok(id.length > 0);
+});
+
+test('generateId generates unique IDs', () => {
+  const ids = Array.from({ length: 1000 }, () => generateId());
+
+  assert.strictEqual(new Set(ids).size, 1000);
+});
+
+test('formatFullDate returns an empty string for falsy timestamps', () => {
+  assert.strictEqual(formatFullDate(0), '');
+  assert.strictEqual(formatFullDate(null), '');
+  assert.strictEqual(formatFullDate(undefined), '');
+});
+
+test('formatFullDate includes the year for a valid timestamp', () => {
+  const timestamp = new Date(2024, 0, 15, 12, 30).getTime();
+  const result = formatFullDate(timestamp);
+
+  assert.ok(result.includes('2024'));
 });
