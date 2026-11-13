@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "Sleep other tabs" in the popup and the right-click menu: puts every other tab in the window to sleep with Chrome's own tab discarding, freeing memory without closing anything. Sleeping tabs stay in the tab bar and reload when clicked.
 - The Import tab has a "Choose file…" button, so you can restore a backup without copying and pasting it. Files over 20 MB are refused with a message.
 - The sidebar folder tree works from the keyboard: Tab to an item, Enter or Space to open it, and the Left and Right arrows to collapse or expand a folder. The edit and delete buttons also appear when an item has keyboard focus.
+- Each tab group has a "Copy links" action that copies every URL in the group, one per line.
 
 ### Fixed
 

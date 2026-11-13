@@ -865,6 +865,8 @@ function createOneTabGroupElement(group) {
     <div class="group-links-row">
       <button class="group-link-action btn-restore-group">Restore all</button>
       <span class="sep">|</span>
+      <button class="group-link-action btn-copy-group-links">Copy links</button>
+      <span class="sep">|</span>
       <button class="group-link-action btn-delete-group danger">Delete all</button>
       <span class="sep">|</span>
       <button class="group-link-action btn-lock-group">${group.locked ? 'Unlock' : 'Lock'}</button>
@@ -911,6 +913,10 @@ function createOneTabGroupElement(group) {
     await handleRestoreGroup(group);
   });
 
+  groupEl.querySelector('.btn-copy-group-links').addEventListener('click', async () => {
+    await handleCopyGroupLinks(group);
+  });
+
   groupEl.querySelector('.btn-delete-group').addEventListener('click', async () => {
     if (group.locked) {
       showToast('Unlock this group before deleting');
@@ -930,7 +936,6 @@ function createOneTabGroupElement(group) {
     await refreshData();
     showToast(group.locked ? 'Group unlocked' : 'Group locked 🔒');
   });
-
 
   groupEl.querySelector('.btn-star-group').addEventListener('click', async (e) => {
     e.stopPropagation();
@@ -1353,6 +1358,20 @@ async function handleRestoreGroup(renderedGroup) {
   showToast(failedCount > 0
     ? `Restored ${openedIds.length} ${pluralize(openedIds.length, 'tab')}. ${failedCount} ${pluralize(failedCount, 'tab')} could not be opened and ${failedCount === 1 ? 'was' : 'were'} kept.`
     : `Restored ${openedIds.length} ${pluralize(openedIds.length, 'tab')}`);
+}
+
+async function handleCopyGroupLinks(group) {
+  const urls = (group.tabs || []).map(tab => tab.url).filter(Boolean);
+  if (urls.length === 0) {
+    showToast('No links to copy');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(urls.join('\n'));
+    showToast(`Copied ${urls.length} ${pluralize(urls.length, 'link')}`);
+  } catch (err) {
+    showToast('Failed to copy links');
+  }
 }
 
 async function handleRestoreAll() {
