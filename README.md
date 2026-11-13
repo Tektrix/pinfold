@@ -34,6 +34,7 @@ Works in Chrome, Edge, Brave and other Chromium-based browsers.
 - Pinned tabs are left open by default (configurable).
 - Excluded domains are never saved by the multi-tab actions. An entry like `example.com` matches that domain and its subdomains; an entry with a port, like `localhost:3000`, matches that host and port exactly.
 - Incognito tabs are never saved.
+- Sleep other tabs: free their memory without closing them. Chrome reloads a tab when you click it.
 - "Skip Duplicate Tabs When Saving" (off by default, in Options) saves a page only once when the same URL is open in several tabs. The duplicate tabs are still closed.
 - The toolbar icon shows a badge with the number of saved tabs.
 
@@ -147,7 +148,7 @@ Imports can be merged with your existing tabs or replace them. Imported items ge
 
 ## Development
 
-There is no build step and no dependencies: plain JavaScript, HTML and CSS. Edit the files and click the reload icon for the extension on `chrome://extensions`.
+There is no build step and no dependencies: plain JavaScript, HTML and CSS. Edit the files and click the reload icon in `chrome://extensions`.
 
 ```
 manifest.json
@@ -157,14 +158,25 @@ popup/                         Toolbar popup with the save actions
 options/                       Settings page
 utils/storage.js               chrome.storage.local wrapper, settings defaults, URL safety checks
 utils/export_import.js         OneTab, Markdown and JSON export and import parsing
+utils/groups.js                Group display name and sorting helpers (getGroupDisplayName, compareGroups)
 utils/icons.js                 Inline SVG icons and small helpers
 icons/                         Extension icons (16, 32, 48, 128 px)
 generate_icons.js              Script that regenerates the PNG icons
-test_pinfold.js                   Validation script (manifest, icons, network isolation, parsers)
+scripts/package.js             Builds dist/pinfold-<version>.zip for the Chrome Web Store and Edge Add-ons
+scripts/build-privacy-page.js  Builds site/privacy.html from PRIVACY.md
+site/                          Static landing and privacy site (served at pinfold.page)
+store/                         Chrome Web Store and Edge Add-ons listing text, promo tiles, and screenshots
+test_pinfold.js                Validation script (manifest, icons, network isolation, parsers)
 tests/                         Unit tests (node:test)
 ```
 
-Run the tests with Node.js:
+Run the test suite with Node.js:
+
+```bash
+npm test
+```
+
+This runs both the validation script and the unit test suite:
 
 ```bash
 node test_pinfold.js

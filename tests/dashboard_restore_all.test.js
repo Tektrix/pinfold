@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { pluralize } = require('../utils/storage.js');
+const { pluralize, cleanFolderTitle } = require('../utils/storage.js');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'dashboard.js'), 'utf8');
 
@@ -20,6 +20,7 @@ function setup({ groups = [], keep = false, response, reject = false, approve = 
   const sandbox = {
     console,
     pluralize,
+    cleanFolderTitle,
     document: { addEventListener() {} },
     confirm(message) {
       calls.confirmations.push(message);

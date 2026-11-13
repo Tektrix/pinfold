@@ -89,3 +89,30 @@ for (const page of PAGES) {
       `${page}.css styles ${styled.length} of ${classes.size} classes used in ${page}.html (need ${MIN_STYLED_CLASS_RATIO * 100}%)`);
   });
 }
+
+test('toast containers are live regions so screen readers announce toasts', () => {
+  for (const page of ['dashboard', 'options']) {
+    const { html } = readPage(page);
+    const match = html.match(/<div id="toastContainer"[^>]*>/);
+    assert.ok(match, `${page}.html has a toast container`);
+    assert.ok(match[0].includes('role="status"'), `${page} toast container has role="status"`);
+    assert.ok(match[0].includes('aria-live="polite"'), `${page} toast container has aria-live="polite"`);
+  }
+});
+
+test('every options control is named by its visible label', () => {
+  const { html } = readPage('options');
+  const tags = [...html.matchAll(/<(select|input|textarea)\b[^>]*>/g)].map(m => m[0]);
+  assert.ok(tags.length >= 10, `found ${tags.length} controls on the options page`);
+  for (const tag of tags) {
+    assert.ok(/aria-label(ledby)?=/.test(tag), `control has an accessible name: ${tag.slice(0, 80)}`);
+  }
+});
+
+test('dashboard search and sort controls have accessible names', () => {
+  const { html } = readPage('dashboard');
+  for (const id of ['searchInput', 'sortSelect']) {
+    const tag = (html.match(new RegExp(`<(input|select)[^>]*id="${id}"[^>]*>`)) || [''])[0];
+    assert.ok(tag.includes('aria-label="'), `${id} has an aria-label`);
+  }
+});

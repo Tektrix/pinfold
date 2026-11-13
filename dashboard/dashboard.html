@@ -18,12 +18,12 @@
         <span class="search-icon-inline" id="searchIcon"></span>
         <input 
           type="text" 
-          id="searchInput" 
+          id="searchInput" aria-label="Search tabs" 
           placeholder="Search tabs..." 
           autocomplete="off"
           spellcheck="false"
         />
-        <button id="btnClearSearch" class="btn-clear-search hidden" title="Clear search">✕</button>
+        <button id="btnClearSearch" class="btn-clear-search hidden" title="Clear search" aria-label="Clear search"><span aria-hidden="true">✕</span></button>
       </div>
 
       <div class="header-right">
@@ -34,11 +34,11 @@
         <button id="btnOpenExportImport" class="header-btn" title="Export or import tabs">
           <span>Export / Import</span>
         </button>
-        <button id="themeToggleBtn" class="header-icon-btn" title="Toggle Dark/Light theme">
-          <span id="themeIcon"></span>
+        <button id="themeToggleBtn" class="header-icon-btn" title="Toggle Dark/Light theme" aria-label="Toggle Dark/Light theme">
+          <span id="themeIcon" aria-hidden="true"></span>
         </button>
-        <button id="btnHeaderSettings" class="header-icon-btn" title="Settings">
-          <span id="headerSettingsIcon"></span>
+        <button id="btnHeaderSettings" class="header-icon-btn" title="Settings" aria-label="Settings">
+          <span id="headerSettingsIcon" aria-hidden="true"></span>
         </button>
       </div>
     </header>
@@ -65,7 +65,7 @@
           </div>
         </div>
 
-        <div class="tree-view-root" id="treeViewContainer">
+        <div class="tree-view-root" id="treeViewContainer" role="tree">
         </div>
 
         <div class="sidebar-footer">
@@ -103,7 +103,7 @@
             <span class="sep">|</span>
             <button id="btnDeleteAllUnlocked" class="action-link-btn danger-link">Delete all</button>
             <span class="sep">|</span>
-            <select id="sortSelect" class="clean-select">
+            <select id="sortSelect" class="clean-select" aria-label="Sort groups">
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
               <option value="most_tabs">Most tabs</option>
@@ -136,10 +136,10 @@
     </div>
 
     <div id="exportImportModal" class="modal-overlay hidden">
-      <div class="modal-card">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="exportImportTitle">
         <div class="modal-header">
-          <h3 class="modal-title">Export / Import</h3>
-          <button id="btnCloseModal" class="btn-close-modal">✕</button>
+          <h3 class="modal-title" id="exportImportTitle">Export / Import</h3>
+          <button id="btnCloseModal" class="btn-close-modal" title="Close" aria-label="Close"><span aria-hidden="true">✕</span></button>
         </div>
 
         <div class="modal-tabs-nav">
@@ -185,6 +185,8 @@
               <label><input type="radio" name="importMode" value="replace"> Replace all</label>
             </div>
             <div class="modal-actions">
+              <input type="file" id="importFileInput" accept=".json,.txt,.md,application/json,text/plain,text/markdown" hidden>
+              <button id="btnChooseImportFile" class="onetab-btn onetab-btn-secondary">Choose file…</button>
               <button id="btnExecuteImport" class="onetab-btn onetab-btn-primary">Import tabs</button>
             </div>
           </div>
@@ -218,7 +220,7 @@
       </div>
     </div>
 
-    <div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="toast-container" role="status" aria-live="polite"></div>
   </div>
 
   <script src="../utils/icons.js"></script>
