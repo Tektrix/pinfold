@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { formatMemory, formatTimeAgo, pluralize, localDateStamp } = require('../utils/storage.js');
+const { formatMemory, formatTimeAgo, pluralize, localDateStamp, cleanFolderTitle } = require('../utils/storage.js');
 
 test('formatTimeAgo handles relative-time boundaries', (t) => {
   const now = Date.now();
@@ -70,4 +70,27 @@ test('localDateStamp uses the local calendar date with zero padding', () => {
      assert.strictEqual(localDateStamp(new Date(2026, 10, 5, 23, 30)), '2026-11-05');
   assert.strictEqual(localDateStamp(new Date(2026, 0, 9, 0, 15)), '2026-01-09');
   assert.strictEqual(localDateStamp(new Date(2026, 11, 25, 12, 0)), '2026-12-25');
+});
+
+test('cleanFolderTitle trims, caps to 100 characters and rejects empty or non-string input', () => {
+  // Normal text
+  assert.strictEqual(cleanFolderTitle('Work'), 'Work');
+
+  // Surrounding spaces
+  assert.strictEqual(cleanFolderTitle('   Work and Reading   '), 'Work and Reading');
+
+  // Only spaces
+  assert.strictEqual(cleanFolderTitle('   '), '');
+
+  // 150-character name
+  const longName = 'A'.repeat(150);
+  assert.strictEqual(cleanFolderTitle(longName), 'A'.repeat(100));
+  assert.strictEqual(cleanFolderTitle(longName).length, 100);
+
+  // Additional edge cases
+  assert.strictEqual(cleanFolderTitle(''), '');
+  assert.strictEqual(cleanFolderTitle(null), '');
+  assert.strictEqual(cleanFolderTitle(undefined), '');
+  assert.strictEqual(cleanFolderTitle(123), '');
+  assert.strictEqual(cleanFolderTitle('   ' + 'B'.repeat(150) + '   '), 'B'.repeat(100));
 });

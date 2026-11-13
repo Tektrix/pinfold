@@ -85,6 +85,12 @@ function pluralize(count, singular, plural = singular + 's') {
   return count === 1 ? singular : plural;
 }
 
+// Trims folder name and limits to 100 characters
+function cleanFolderTitle(value) {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, 100);
+}
+
 // Local calendar date as YYYY-MM-DD for export file names, so an evening
 // export is named with today's local date, not the UTC date
 function localDateStamp(date = new Date()) {
@@ -418,9 +424,10 @@ const PinfoldStorage = {
 
   async addFolder(title, parentId = null) {
     return withStorageLock(async () => {
+      const cleanTitle = cleanFolderTitle(title);
       const newFolder = {
         id: generateId(),
-        title: title || 'New Folder',
+        title: cleanTitle || 'New Folder',
         parentId: parentId || null,
         collapsed: false,
         createdAt: Date.now()
@@ -439,7 +446,11 @@ const PinfoldStorage = {
       const idx = folders.findIndex(f => f.id === folderId);
       if (idx === -1) return null;
 
-      folders[idx] = { ...folders[idx], ...updates };
+      const safeUpdates = { ...updates };
+      if (typeof safeUpdates.title === 'string') {
+        safeUpdates.title = cleanFolderTitle(safeUpdates.title);
+      }
+      folders[idx] = { ...folders[idx], ...safeUpdates };
       await this.saveFolders(folders);
       return folders[idx];
     });
@@ -570,7 +581,7 @@ const PinfoldStorage = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, localDateStamp, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
+  module.exports = { PinfoldStorage, DEFAULT_SETTINGS, STORAGE_KEYS, generateId, isSafeTabUrl, formatMemory, pluralize, cleanFolderTitle, localDateStamp, defaultFolderName, sortFoldersByRecentUse, formatTimeAgo, formatFullDate };
 } else {
   globalThis.PinfoldStorage = PinfoldStorage;
   globalThis.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
@@ -578,6 +589,7 @@ if (typeof module !== 'undefined' && module.exports) {
   globalThis.isSafeTabUrl = isSafeTabUrl;
   globalThis.formatMemory = formatMemory;
   globalThis.pluralize = pluralize;
+  globalThis.cleanFolderTitle = cleanFolderTitle;
   globalThis.localDateStamp = localDateStamp;
   globalThis.defaultFolderName = defaultFolderName;
   globalThis.sortFoldersByRecentUse = sortFoldersByRecentUse;

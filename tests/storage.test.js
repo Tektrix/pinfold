@@ -163,6 +163,22 @@ test('deleteFolder removes nested subfolders and moves their groups to root', as
   assert.strictEqual(groups.find(g => g.id === 'g2').folderId, 'other');
 });
 
+test('addFolder and updateFolder trim titles, cap them to 100 characters and fallback for empty titles', async () => {
+  store.load({ [STORAGE_KEYS.FOLDERS]: [] });
+
+  const f1 = await PinfoldStorage.addFolder('   Work   ');
+  assert.strictEqual(f1.title, 'Work');
+
+  const f2 = await PinfoldStorage.addFolder('   ');
+  assert.strictEqual(f2.title, 'New Folder');
+
+  const f3 = await PinfoldStorage.addFolder('Z'.repeat(150));
+  assert.strictEqual(f3.title, 'Z'.repeat(100));
+
+  const updated = await PinfoldStorage.updateFolder(f1.id, { title: '   ' + 'Y'.repeat(120) + '   ' });
+  assert.strictEqual(updated.title, 'Y'.repeat(100));
+});
+
 test('clearPreviewImages removes stored screenshots but keeps tabs', async () => {
   await PinfoldStorage.addIndividualTabs([{ url: 'https://a.com', previewImage: 'data:image/jpeg;base64,xx' }]);
   assert.strictEqual(await PinfoldStorage.clearPreviewImages(), 1);

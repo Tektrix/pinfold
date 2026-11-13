@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Folder names entered in the dashboard are now trimmed and capped at 100 characters, matching the popup, and empty or spaces-only names are ignored instead of creating a folder named "New Folder".
 - Scrollbars now follow Pinfold's light or dark theme instead of the operating system's.
 - Excluded domains pasted as a full address (`https://www.youtube.com/`) now match.
 - Markdown exports now import back with each group's tags, and untitled groups stay untitled instead of becoming "Tab Group 1". Older Markdown exports still import as before.
