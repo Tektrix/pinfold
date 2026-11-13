@@ -865,7 +865,7 @@ function createOneTabGroupElement(group) {
   groupEl.querySelector('.btn-copy-group-links').addEventListener('click', async () => {
     await handleCopyGroupLinks(group);
   });
-  
+
   groupEl.querySelector('.btn-delete-group').addEventListener('click', async () => {
     if (group.locked) {
       showToast('Unlock this group before deleting');
@@ -885,7 +885,6 @@ function createOneTabGroupElement(group) {
     await refreshData();
     showToast(group.locked ? 'Group unlocked' : 'Group locked 🔒');
   });
-
 
   groupEl.querySelector('.btn-star-group').addEventListener('click', async (e) => {
     e.stopPropagation();
