@@ -90,7 +90,7 @@ test('the last unfiled save is stored and cleared, including by Clear all data',
 
 test('default folder names include the date, and the time when asked', () => {
   const when = new Date(2026, 10, 4, 15, 10);
-  assert.match(defaultFolderName('Tabs', false, when), /^Tabs · \S.*4/);
+  assert.match(defaultFolderName('Tabs', false, when), /^Tabs · .*4/); // "Nov 4" or "4 Nov", depending on locale
   assert.doesNotMatch(defaultFolderName('Tabs', false, when), /10/);
   assert.match(defaultFolderName('Window', true, when), /^Window · .*10/);
 });
