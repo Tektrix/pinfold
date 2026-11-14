@@ -195,8 +195,8 @@ test('isSafeTabUrl allows normal pages and blocks script/data URLs', () => {
 });
 
 // The service worker registers chrome listeners at load, so run it in a sandbox with
-// stub APIs and pull isDomainExcluded out of it.
-function loadServiceWorkerFunction(name) {
+// stub APIs and pull one function out of it. extraChrome adds stubs, e.g. tabs.create.
+function loadServiceWorkerFunction(name, extraChrome = {}){
   const stubEvent = { addListener() {} };
   const sandbox = {
     console,
@@ -210,7 +210,8 @@ function loadServiceWorkerFunction(name) {
       contextMenus: { onClicked: stubEvent },
       commands: { onCommand: stubEvent },
       storage: { onChanged: stubEvent },
-      tabs: { onCreated: stubEvent, onUpdated: stubEvent }
+      tabs: { onCreated: stubEvent, onUpdated: stubEvent, ...extraChrome.tabs },
+      windows: { ...extraChrome.windows }
     }
   };
   const src = fs.readFileSync(path.join(__dirname, '..', 'background', 'service_worker.js'), 'utf8');
@@ -304,4 +305,103 @@ test('importGroups refuses to replace saved tabs with an empty import', async ()
   await assert.rejects(() => PinfoldStorage.importGroups([], 'replace'), /empty import/);
   await assert.rejects(() => PinfoldStorage.importGroups([{ id: 'x', tabs: [] }], 'replace'), /empty import/);
   assert.deepStrictEqual((await PinfoldStorage.getGroups())[0].tabs.map(t => t.id), ['t0', 't1'], 'saved tabs untouched');
+});
+
+// Fake chrome.tabs / chrome.windows for restoreTabs that record every call.
+// Tabs whose url is in rejectUrls make tabs.create throw, like Chrome would on failure.
+function restoreStubs({rejectUrls = []} = {}){
+  const calls = {windowsCreate: [], tabsCreate: []};
+  const stubs = {
+    windows : {
+      async create(props){
+        calls.windowsCreate.push(props);
+        return {id : 500};
+      }
+    },
+    tabs : {
+      async create(props) {
+        calls.tabsCreate.push(props);
+        if (rejectUrls.includes(props.url)) throw new Error('create failed')
+        return {id: 999 + calls.tabsCreate.length, ...props};
+      }
+    }
+  };
+  return {stubs, calls};
+}
+
+
+test('restoreTabs opens safe URLs and fails unsafe or null entries', async () => {
+  // ARRANGE
+  const { stubs, calls } = restoreStubs();
+  const restoreTabs = loadServiceWorkerFunction('restoreTabs', stubs);
+
+  // ACT
+  const result = await restoreTabs([
+    { id: 't1', url: 'https://a.com' },
+    { id: 't2', url: 'javascript:alert(1)' },
+    null,
+    { id: 't3', url: 'https://b.com' }
+  ], { newWindow: false });
+
+  // ASSERT
+  assert.deepStrictEqual([...result.openedIds], ['t1', 't3']);
+  assert.deepStrictEqual([...result.failedIds], ['t2', null]);
+  assert.strictEqual(calls.windowsCreate.length, 0);
+  assert.deepStrictEqual(calls.tabsCreate.map(c => c.url), ['https://a.com', 'https://b.com']);
+});
+
+
+test('restoreTabs with newWindow opens one window and adds the rest to it', async () => {
+  // ARRANGE
+  const { stubs, calls } = restoreStubs();
+  const restoreTabs = loadServiceWorkerFunction('restoreTabs', stubs);
+
+  // ACT
+  const result = await restoreTabs([
+    { id: 't1', url: 'https://a.com' },
+    { id: 't2', url: 'https://b.com' },
+    { id: 't3', url: 'https://c.com' }
+  ], { newWindow: true });
+
+  // ASSERT
+  assert.strictEqual(calls.windowsCreate.length, 1);
+  assert.strictEqual(calls.windowsCreate[0].url, 'https://a.com');
+  assert.deepStrictEqual(calls.tabsCreate.map(c => c.windowId), [500, 500]);
+  assert.deepStrictEqual([...result.openedIds], ['t1', 't2', 't3']);
+});
+
+test('restoreTabs keeps going after one create rejects', async () => {
+  // ARRANGE
+  const { stubs, calls } = restoreStubs({ rejectUrls: ['https://b.com'] });
+  const restoreTabs = loadServiceWorkerFunction('restoreTabs', stubs);
+
+  // ACT
+  const result = await restoreTabs([
+    { id: 't1', url: 'https://a.com' },
+    { id: 't2', url: 'https://b.com' },
+    { id: 't3', url: 'https://c.com' }
+  ], { newWindow: false });
+
+  // ASSERT
+  assert.deepStrictEqual([...result.openedIds], ['t1', 't3']);
+  assert.deepStrictEqual([...result.failedIds], ['t2']);
+  assert.strictEqual(calls.windowsCreate.length, 0);
+  assert.deepStrictEqual(calls.tabsCreate.map(c => c.url), ['https://a.com', 'https://b.com', 'https://c.com']);
+});
+
+test('restoreTabs returns empty results for empty or non-array input', async () => {
+  // ARRANGE
+  const { stubs, calls } = restoreStubs();
+  const restoreTabs = loadServiceWorkerFunction('restoreTabs', stubs);
+
+  for (const input of [[], null, undefined, 'x', { id: 1 }]) {
+    // ACT
+    const result = await restoreTabs(input, { newWindow: false });
+
+    // ASSERT
+    assert.deepStrictEqual([...result.openedIds], []);
+    assert.deepStrictEqual([...result.failedIds], []);
+  }
+  assert.strictEqual(calls.windowsCreate.length, 0);
+  assert.strictEqual(calls.tabsCreate.length, 0);
 });
