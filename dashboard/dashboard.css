@@ -1392,7 +1392,7 @@ body[data-theme="light"] .tab-card-footer {
   gap: 10px;
 }
 
-.onetab-btn {
+.pf-btn {
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -1403,22 +1403,22 @@ body[data-theme="light"] .tab-card-footer {
   transition: background-color 0.15s ease;
 }
 
-.onetab-btn-primary {
+.pf-btn-primary {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   color: #FFFFFF;
 }
 
-.onetab-btn-primary:hover {
+.pf-btn-primary:hover {
   opacity: 0.9;
 }
 
-.onetab-btn-secondary {
+.pf-btn-secondary {
   background-color: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.onetab-btn-secondary:hover {
+.pf-btn-secondary:hover {
   background-color: var(--bg-active);
 }
 
@@ -1853,7 +1853,7 @@ body[data-theme="dark"] .just-saved-select {
   color-scheme: dark;
 }
 
-.just-saved-actions .onetab-btn {
+.just-saved-actions .pf-btn {
   padding: 4px 10px;
   font-size: 12px;
 }
