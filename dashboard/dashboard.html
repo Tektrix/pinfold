@@ -116,7 +116,7 @@
           <span class="just-saved-text" id="justSavedText"></span>
           <div class="just-saved-actions">
             <select id="justSavedMoveSelect" class="just-saved-select" aria-label="Move the tabs you just saved to a folder"></select>
-            <button id="btnJustSavedNewFolder" class="onetab-btn onetab-btn-secondary">New folder</button>
+            <button id="btnJustSavedNewFolder" class="pf-btn pf-btn-secondary">New folder</button>
             <button id="btnJustSavedDismiss" class="btn-close-modal" aria-label="Dismiss">✕</button>
           </div>
         </div>
@@ -128,8 +128,8 @@
           <h2>No saved tabs</h2>
           <p>Click the Pinfold extension icon<span id="emptyShortcutHint" hidden> or press <kbd id="emptyShortcutKbd"></kbd></span> to collapse open tabs and free memory.</p>
           <div class="empty-btns">
-            <button id="btnEmptyCollapseWindow" class="onetab-btn onetab-btn-primary">Collapse current window</button>
-            <button id="btnEmptyImport" class="onetab-btn onetab-btn-secondary">Import tabs</button>
+            <button id="btnEmptyCollapseWindow" class="pf-btn pf-btn-primary">Collapse current window</button>
+            <button id="btnEmptyImport" class="pf-btn pf-btn-secondary">Import tabs</button>
           </div>
         </div>
       </main>
@@ -154,8 +154,8 @@
             <p class="panel-desc">Standard OneTab format (<code>URL | Title</code> per line).</p>
             <textarea id="exportOneTabTextarea" class="code-textarea" readonly spellcheck="false"></textarea>
             <div class="modal-actions">
-              <button id="btnCopyOneTab" class="onetab-btn onetab-btn-primary">Copy to clipboard</button>
-              <button id="btnDownloadOneTab" class="onetab-btn onetab-btn-secondary">Download .txt</button>
+              <button id="btnCopyOneTab" class="pf-btn pf-btn-primary">Copy to clipboard</button>
+              <button id="btnDownloadOneTab" class="pf-btn pf-btn-secondary">Download .txt</button>
             </div>
           </div>
 
@@ -163,8 +163,8 @@
             <p class="panel-desc">Markdown lists with clickable links and group headings.</p>
             <textarea id="exportMdTextarea" class="code-textarea" readonly spellcheck="false"></textarea>
             <div class="modal-actions">
-              <button id="btnCopyMd" class="onetab-btn onetab-btn-primary">Copy Markdown</button>
-              <button id="btnDownloadMd" class="onetab-btn onetab-btn-secondary">Download .md</button>
+              <button id="btnCopyMd" class="pf-btn pf-btn-primary">Copy Markdown</button>
+              <button id="btnDownloadMd" class="pf-btn pf-btn-secondary">Download .md</button>
             </div>
           </div>
 
@@ -172,8 +172,8 @@
             <p class="panel-desc">Full backup with all metadata and group timestamps.</p>
             <textarea id="exportJsonTextarea" class="code-textarea" readonly spellcheck="false"></textarea>
             <div class="modal-actions">
-              <button id="btnCopyJson" class="onetab-btn onetab-btn-primary">Copy JSON</button>
-              <button id="btnDownloadJson" class="onetab-btn onetab-btn-secondary">Download .json</button>
+              <button id="btnCopyJson" class="pf-btn pf-btn-primary">Copy JSON</button>
+              <button id="btnDownloadJson" class="pf-btn pf-btn-secondary">Download .json</button>
             </div>
           </div>
 
@@ -186,8 +186,8 @@
             </div>
             <div class="modal-actions">
               <input type="file" id="importFileInput" accept=".json,.txt,.md,application/json,text/plain,text/markdown" hidden>
-              <button id="btnChooseImportFile" class="onetab-btn onetab-btn-secondary">Choose file…</button>
-              <button id="btnExecuteImport" class="onetab-btn onetab-btn-primary">Import tabs</button>
+              <button id="btnChooseImportFile" class="pf-btn pf-btn-secondary">Choose file…</button>
+              <button id="btnExecuteImport" class="pf-btn pf-btn-primary">Import tabs</button>
             </div>
           </div>
         </div>
