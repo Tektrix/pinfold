@@ -258,13 +258,24 @@ async function triggerSleepTabs() {
       action: 'SLEEP_TABS',
       windowId: currentWin ? currentWin.id : undefined
     });
-    const slept = response && response.success ? response.sleptCount : 0;
+    // A missing reply or { success: false } means the sleep never ran, which is
+    // not the same as "nothing to sleep", so report it as a failure.
+    if(!response || !response.success){
+      showSleepTabsFailure(label)
+      return;
+    }
+    const slept = response.sleptCount || 0;
     if (label) label.textContent = slept > 0 ? `Put ${slept} ${pluralize(slept, 'tab')} to sleep` : 'No tabs to put to sleep';
     setTimeout(() => window.close(), 1000);
   } catch (err) {
     console.error('Pinfold sleep tabs error:', err);
-    window.close();
+    showSleepTabsFailure(label);
   }
+}
+
+// Keep the popup open so the user can read the message and try again.
+function showSleepTabsFailure(label) {
+  if (label) label.textContent = "Couldn't put tabs to sleep";
 }
 
 async function triggerCollapse(scope) {

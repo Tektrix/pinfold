@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "Open Dashboard" now always opens a new dashboard tab in the window you are in. Before, it switched to a dashboard already open in another window, which looked like nothing happened. Collapsing tabs still reuses a dashboard tab that is already open in the same window.
 - Export and backup file names now use your local date. Before, an evening export could be named with tomorrow's date.
 - Accessibility: screen readers now announce toast messages, icon-only buttons have names, every setting is linked to its label, popup buttons and dashboard dropdowns show a focus ring when you use the keyboard, and the Export / Import dialog keeps keyboard focus inside it and returns it when closed.
+- When "Sleep other tabs" fails, the popup now says so and stays open, instead of saying there were no tabs to sleep.
 
 ## [1.0.2] - 2026-11-04
 
