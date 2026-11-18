@@ -102,3 +102,21 @@ test('a multi-tab group uses the group confirmation when it is turned on', async
   await page.sandbox.deleteGroupFromSidebar('g');
   assert.deepEqual(page.calls.confirms, ['Delete this group of 2 tabs?']);
 });
+
+test('Delete target is the focused sidebar item, not the selected one', () => {
+  const page = loadDashboard({ groups: [one('a'), one('b')] });
+  vm.runInContext("state.activeFilter = 'group:a';", page.sandbox);
+  assert.equal(page.sandbox.getDeleteTargetGroupId(), 'a');
+  page.sandbox.document.activeElement = { dataset: { groupId: 'b' }, classList: { contains: (c) => c === 'tree-node-item' } };
+  assert.equal(page.sandbox.getDeleteTargetGroupId(), 'b');
+});
+
+test('focus moves to the next item after deleting the focused one', async () => {
+  const page = loadDashboard({ groups: [one('a'), one('b'), one('c')] });
+  const focused = [];
+  page.sandbox.document.activeElement = { dataset: { groupId: 'b' } };
+  page.sandbox.document.querySelector = (sel) => sel.includes('"c"') ? { dataset: { groupId: 'c' }, focus() { focused.push('c'); } } : null;
+  await page.sandbox.deleteGroupFromSidebar('b');
+  assert.deepEqual(page.calls.deleted, ['b']);
+  assert.deepEqual(focused, ['c']);
+});

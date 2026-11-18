@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Pressing Delete in the sidebar now removes the item that has keyboard focus instead of the selected one, and focus moves to the next item afterwards.
+
 - Choosing an import file that cannot be read now shows an error instead of failing silently.
 - Folder names entered in the dashboard are now trimmed and capped at 100 characters, matching the popup, and empty or spaces-only names are ignored instead of creating a folder named "New Folder".
 - Scrollbars now follow Pinfold's light or dark theme instead of the operating system's.
