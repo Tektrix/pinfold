@@ -1645,12 +1645,15 @@ function bindEventListeners() {
       const mode = document.querySelector('input[name="importMode"]:checked').value;
 
       if (mode === 'replace' && !confirm('Replace all current tabs?')) return;
-      await PinfoldStorage.importGroups(result.groups, mode);
+      const { keptLocked } = await PinfoldStorage.importGroups(result.groups, mode);
 
       await refreshData();
       closeExportImportModal();
       document.getElementById('importInputTextarea').value = '';
-      showToast(`Imported ${result.totalTabs} ${pluralize(result.totalTabs, 'tab')}!`);
+      const keptNote = keptLocked > 0
+        ? ` ${keptLocked} locked ${pluralize(keptLocked, 'group was', 'groups were')} kept.`
+        : '';
+      showToast(`Imported ${result.totalTabs} ${pluralize(result.totalTabs, 'tab')}!${keptNote}`);
     } catch (err) {
       alert('Failed to import: ' + err.message);
     }
