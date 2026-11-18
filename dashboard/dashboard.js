@@ -1654,7 +1654,12 @@ function bindEventListeners() {
       showToast('That file is too large to import (max 20 MB)');
       return;
     }
-    document.getElementById('importInputTextarea').value = await file.text();
+    try {
+      const contents = await file.text();
+      document.getElementById('importInputTextarea').value = contents;
+    } catch {
+      showToast("Couldn't read that file. Try choosing it again.");
+    }
   });
 }
 

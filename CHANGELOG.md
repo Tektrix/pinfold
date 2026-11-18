@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Choosing an import file that cannot be read now shows an error instead of failing silently.
 - Folder names entered in the dashboard are now trimmed and capped at 100 characters, matching the popup, and empty or spaces-only names are ignored instead of creating a folder named "New Folder".
 - Scrollbars now follow Pinfold's light or dark theme instead of the operating system's.
 - Excluded domains pasted as a full address (`https://www.youtube.com/`) now match.
