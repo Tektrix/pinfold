@@ -168,6 +168,39 @@ test('Pinfold-branded backups are accepted', () => {
   assert.strictEqual(res.totalTabs, 1);
 });
 
+test('Markdown export -> import keeps square brackets and backslashes in tab titles', () => {
+  const src = [{
+    id: 'g1',
+    title: 'Work',
+    createdAt: 1720000000000,
+    tabs: [
+      { id: 't1', title: '[Draft] Q4 [v2] plan', url: 'https://example.com/q4' },
+      { id: 't2', title: 'Path C:\\temp\\', url: 'https://example.com/path' },
+      { id: 't3', title: 'Back\\[slash] mix', url: 'https://example.com/mix' }
+    ]
+  }];
+  const markdown = ExportImport.exportToMarkdown(src);
+  assert.ok(markdown.includes('- [\\[Draft\\] Q4 \\[v2\\] plan](https://example.com/q4)'));
+  const res = ExportImport.parseImport(markdown);
+  assert.deepStrictEqual(
+    res.groups[0].tabs.map(t => t.title),
+    ['[Draft] Q4 [v2] plan', 'Path C:\\temp\\', 'Back\\[slash] mix']
+  );
+});
+
+test('Markdown exports written before brackets were escaped still import', () => {
+  const res = ExportImport.parseImport([
+    '## Old (2 tabs) - 1/1/2024',
+    '',
+    '- [Draft Q4 plan](https://example.com/q4)',
+    '- [Ends in a backslash\\](https://example.com/bs)'
+  ].join('\n'));
+  assert.deepStrictEqual(
+    res.groups[0].tabs.map(t => [t.title, t.url]),
+    [['Draft Q4 plan', 'https://example.com/q4'], ['Ends in a backslash\\', 'https://example.com/bs']]
+  );
+});
+
 test('Markdown URL with parentheses round-trips', () => {
   const md = ExportImport.exportToMarkdown(sampleGroups());
   assert.ok(md.includes('(https://en.wikipedia.org/wiki/Foo_%28bar%29)'));

@@ -57,7 +57,8 @@ const ExportImport = {
       md += `\n`;
 
       (group.tabs || []).forEach((tab) => {
-        const title = String(tab.title || 'Untitled Tab').replace(/[\[\]]/g, '').replace(/[\r\n]+/g, ' ');
+        // Backslashes and brackets are escaped so a bracket can't end the link text early; the importer undoes it.
+        const title = String(tab.title || 'Untitled Tab').replace(/[\r\n]+/g, ' ').replace(/[\\\[\]]/g, '\\$&');
         const url = String(tab.url || '#').replace(/\(/g, '%28').replace(/\)/g, '%29');
         md += `- [${title}](${url})\n`;
       });
@@ -210,7 +211,9 @@ const ExportImport = {
   },
 
   _extractMarkdownLink(line) {
-    const m = line.match(/^[-*]\s*\[([^\]]*)\]\(/);
+    // Titles may hold backslash escapes (\[ \] \\). A line the escape-aware pattern can't read, such as
+    // an older export whose title ends in a lone backslash, falls back to the plain pattern.
+    const m = line.match(/^[-*]\s*\[((?:\\.|[^\]\\])*)\]\(/) || line.match(/^[-*]\s*\[([^\]]*)\]\(/);
     if (!m) return null;
     let depth = 0;
     let end = -1;
@@ -224,7 +227,7 @@ const ExportImport = {
     }
     if (end === -1) return null;
     const url = line.slice(m[0].length, end).trim().replace(/%28/gi, '(').replace(/%29/gi, ')');
-    return { title: m[1].trim(), url };
+    return { title: m[1].replace(/\\([\\\[\]])/g, '$1').trim(), url };
   },
 
   _parseTagsLine(line) {
