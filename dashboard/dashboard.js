@@ -635,7 +635,7 @@ function renderGroupsList() {
 
   if (state.viewMode === 'cards') {
     const gridContainer = document.createElement('div');
-    gridContainer.className = 'onetab-cards-unified-grid';
+    gridContainer.className = 'pf-cards-grid';
 
     filteredGroups.forEach((group) => {
       (group.tabs || []).forEach((tab) => {
@@ -840,7 +840,7 @@ function createOneTabGroupElement(group) {
   }
 
   const groupEl = document.createElement('div');
-  groupEl.className = 'onetab-group';
+  groupEl.className = 'pf-group';
   groupEl.dataset.groupId = group.id;
 
   let groupTitle = group.title;

@@ -674,13 +674,13 @@ body[data-theme="light"] .clean-select option {
   color: #1E293B;
 }
 
-.onetab-groups-container {
+.pf-groups-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.onetab-group {
+.pf-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1106,7 +1106,7 @@ body[data-theme="light"] .clean-mini-select option {
   color: var(--danger-color);
 }
 
-.onetab-cards-unified-grid {
+.pf-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
