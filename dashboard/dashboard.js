@@ -514,6 +514,7 @@ async function deleteGroupFromSidebar(groupId) {
   }
 
   const wasSelected = state.activeFilter === `group:${groupId}`;
+  const hadFocus = document.activeElement?.dataset?.groupId === groupId;
   const leaves = [...document.querySelectorAll('#treeViewContainer .tree-node-item[data-group-id]')];
   const idx = leaves.findIndex(el => el.dataset.groupId === groupId);
   const nextLeaf = idx === -1 ? null : (leaves[idx + 1] || leaves[idx - 1] || null);
@@ -535,6 +536,18 @@ async function deleteGroupFromSidebar(groupId) {
     const next = document.querySelector(`#treeViewContainer .tree-node-item[data-group-id="${CSS.escape(nextId)}"]`);
     if (next) next.click();
   }
+  if (hadFocus) {
+    // The tree is rebuilt after a delete, so put keyboard focus back on the next item
+    const target = nextId && document.querySelector(`#treeViewContainer .tree-node-item[data-group-id="${CSS.escape(nextId)}"]`);
+    (target || document.getElementById('navAllTabs'))?.focus?.();
+  }
+}
+
+// The group Delete acts on: the sidebar item that has keyboard focus, else the selected one.
+function getDeleteTargetGroupId() {
+  const focusedId = document.activeElement?.dataset?.groupId;
+  if (focusedId && document.activeElement.classList?.contains('tree-node-item')) return focusedId;
+  return state.activeFilter.startsWith('group:') ? state.activeFilter.slice('group:'.length) : null;
 }
 
 function setupTreeDropTarget(element, targetFolderId) {
@@ -1465,12 +1478,12 @@ function bindEventListeners() {
       e.preventDefault();
       searchInput.focus();
     } else if ((e.key === 'Delete' || (e.key === 'Backspace' && /Mac/i.test(navigator.platform))) &&
-               !typingInField && !e.repeat && state.activeFilter.startsWith('group:') &&
+               !typingInField && !e.repeat && getDeleteTargetGroupId() &&
                document.getElementById('previewModal').classList.contains('hidden') &&
                document.getElementById('exportImportModal').classList.contains('hidden')) {
-      // Delete (or the Mac delete key) removes the tab selected in the sidebar
+      // Delete (or the Mac delete key) removes the sidebar item with focus, else the selected one
       e.preventDefault();
-      deleteGroupFromSidebar(state.activeFilter.slice('group:'.length));
+      deleteGroupFromSidebar(getDeleteTargetGroupId());
     } else if (e.key === 'Escape') {
       if (!document.getElementById('previewModal').classList.contains('hidden')) {
         closePreviewModal();
