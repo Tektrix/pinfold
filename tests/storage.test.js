@@ -307,6 +307,38 @@ test('importGroups refuses to replace saved tabs with an empty import', async ()
   assert.deepStrictEqual((await PinfoldStorage.getGroups())[0].tabs.map(t => t.id), ['t0', 't1'], 'saved tabs untouched');
 });
 
+test('importGroups in replace mode keeps locked groups and removes unlocked ones', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      { id: 'locked', locked: true, tabs: [{ id: 'l1', url: 'https://locked.example' }] },
+      { id: 'open', tabs: [{ id: 'o1', url: 'https://open.example' }] }
+    ]
+  });
+  const imported = [{ id: 'new', tabs: [{ id: 'n1', url: 'https://new.example' }] }];
+  const result = await PinfoldStorage.importGroups(imported, 'replace');
+  assert.deepStrictEqual(result, { keptLocked: 1 });
+  assert.deepStrictEqual((await PinfoldStorage.getGroups()).map(g => g.id), ['new', 'locked']);
+});
+
+test('importGroups in replace mode keeps nothing extra when no group is locked', async () => {
+  seedGroup(['a']);
+  const result = await PinfoldStorage.importGroups([{ id: 'new', tabs: [{ id: 'n1', url: 'https://new.example' }] }], 'replace');
+  assert.deepStrictEqual(result, { keptLocked: 0 });
+  assert.deepStrictEqual((await PinfoldStorage.getGroups()).map(g => g.id), ['new']);
+});
+
+test('importGroups in merge mode adds the imported groups and keeps every current group', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      { id: 'locked', locked: true, tabs: [{ id: 'l1', url: 'https://locked.example' }] },
+      { id: 'open', tabs: [{ id: 'o1', url: 'https://open.example' }] }
+    ]
+  });
+  const result = await PinfoldStorage.importGroups([{ id: 'new', tabs: [{ id: 'n1', url: 'https://new.example' }] }], 'merge');
+  assert.deepStrictEqual(result, { keptLocked: 0 });
+  assert.deepStrictEqual((await PinfoldStorage.getGroups()).map(g => g.id), ['new', 'locked', 'open']);
+});
+
 // Fake chrome.tabs / chrome.windows for restoreTabs that record every call.
 // Tabs whose url is in rejectUrls make tabs.create throw, like Chrome would on failure.
 function restoreStubs({rejectUrls = []} = {}){

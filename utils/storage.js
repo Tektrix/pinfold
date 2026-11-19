@@ -374,12 +374,15 @@ const PinfoldStorage = {
       throw new Error('Refusing to replace saved tabs with an empty import.');
     }
     return withStorageLock(async () => {
-      if (mode === 'replace') {
-        await this.saveGroups(importedGroups);
-        return;
-      }
       const current = await this.getGroups();
+      if (mode === 'replace') {
+        // Locked groups are protected from deletion everywhere else, so Replace all keeps them.
+        const locked = current.filter(g => g.locked);
+        await this.saveGroups([...importedGroups, ...locked]);
+        return { keptLocked: locked.length };
+      }
       await this.saveGroups([...importedGroups, ...current]);
+      return { keptLocked: 0 };
     });
   },
 
