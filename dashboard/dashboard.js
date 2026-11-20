@@ -1423,6 +1423,13 @@ async function handleRestoreAll() {
 }
 
 function bindEventListeners() {
+  // The quick nav items are plain divs, so give them the tree items' keyboard
+  // activation; tabindex="0" in dashboard.html makes them reachable with Tab.
+  for (const navId of ['navAllTabs', 'navFavorites']) {
+    const navItem = document.getElementById(navId);
+    if (navItem) setupTreeItemKeyboard(navItem);
+  }
+
   document.getElementById('navAllTabs')?.addEventListener('click', () => {
     state.activeFilter = 'all';
     document.getElementById('currentViewTitle').textContent = 'All Tabs';
