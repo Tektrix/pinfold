@@ -25,7 +25,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   await refreshData();
   bindEventListeners();
   setupStorageListener();
+  setupPeriodicRefresh();
 });
+
+const REDRAW_INTERVAL_MS = 60 * 1000;
+
+// True while the user is typing in a field or has a dropdown focused, so a redraw
+// doesn't wipe their text, cursor or selection.
+function isUserEditing() {
+  const el = document.activeElement;
+  if (!el) return false;
+  return el.isContentEditable === true || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+}
+
+// Redraw once a minute while visible, and when the tab becomes visible again, so the
+// "saved just now" banner expires and the "… ago" times stay current.
+function refreshTimeLabels() {
+  if (document.hidden || isUserEditing()) return;
+  renderDashboard();
+}
+
+function setupPeriodicRefresh() {
+  setInterval(refreshTimeLabels, REDRAW_INTERVAL_MS);
+  document.addEventListener('visibilitychange', refreshTimeLabels);
+}
 
 function renderStaticIcons() {
   document.getElementById('mainLogo').innerHTML = SVG_ICONS.logo;
