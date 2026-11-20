@@ -231,6 +231,15 @@ test('excluded domains match the domain and its subdomains only', () => {
   assert.ok(!isDomainExcluded('http://localhost:8080/', list));
 });
 
+test('excluded entries with a default port match their site', () => {
+  const isDomainExcluded = loadServiceWorkerFunction('isDomainExcluded');
+  for (const entry of ['youtube.com:443', 'https://youtube.com:443/', 'youtube.com:80']) {
+    assert.ok(isDomainExcluded('https://www.youtube.com/watch', [entry]), entry);
+  }
+  assert.ok(isDomainExcluded('http://localhost:3000/', ['localhost:3000']));
+  assert.ok(!isDomainExcluded('http://localhost:8080/', ['localhost:3000']));
+});
+
 test('excluded entries pasted as an address still match their host', () => {
   const isDomainExcluded = loadServiceWorkerFunction('isDomainExcluded');
   const list = ['https://www.youtube.com/', 'youtube.com/watch', 'youtube.com?v=1', 'youtube.com#top', 'http://localhost:3000/app'];
