@@ -120,3 +120,14 @@ test('focus moves to the next item after deleting the focused one', async () => 
   assert.deepEqual(page.calls.deleted, ['b']);
   assert.deepEqual(focused, ['c']);
 });
+
+test('deleting the only focused item puts keyboard focus on All Tabs', async () => {
+  const page = loadDashboard({ groups: [one('a')] });
+  const focused = [];
+  const navAllTabs = { focus() { focused.push('all-tabs'); } };
+  page.sandbox.document.activeElement = { dataset: { groupId: 'a' } };
+  page.sandbox.document.getElementById = (id) => id === 'navAllTabs' ? navAllTabs : page.title;
+  await page.sandbox.deleteGroupFromSidebar('a');
+  assert.deepEqual(page.calls.deleted, ['a']);
+  assert.deepEqual(focused, ['all-tabs']);
+});
