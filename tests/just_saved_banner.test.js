@@ -115,3 +115,12 @@ test('the banner says "2 tabs" for two saved tabs', () => {
   page.sandbox.renderJustSavedBanner();
   assert.match(page.elements.justSavedText.textContent, /^2 tabs saved /);
 });
+
+test('the banner hides itself once the save is more than 30 minutes old', () => {
+  const page = loadDashboard({ groups: [group('a')], lastSave: recentSave(['a']) });
+  page.sandbox.renderJustSavedBanner();
+  assert.equal(page.elements.justSavedBanner.classList.contains('hidden'), false);
+  vm.runInContext('state.lastSave.savedAt = Date.now() - 31 * 60 * 1000;', page.sandbox);
+  page.sandbox.renderJustSavedBanner();
+  assert.equal(page.elements.justSavedBanner.classList.contains('hidden'), true);
+});

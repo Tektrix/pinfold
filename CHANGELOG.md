@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The "saved just now" banner now disappears after 30 minutes and the "… ago" times stay current while the dashboard is open. It redraws every minute while visible, and never while you are typing.
 - Importing with "Replace all" no longer deletes locked groups. They are kept, and the confirmation toast says how many.
 - Markdown exports no longer remove square brackets from tab titles. They are escaped with a backslash and restored on import, so `[Draft] Q4 plan` survives a round trip. Older Markdown exports still import as before.
 - Pressing Delete in the sidebar now removes the item that has keyboard focus instead of the selected one, and focus moves to the next item afterwards.
