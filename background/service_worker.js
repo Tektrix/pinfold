@@ -404,7 +404,9 @@ function normalizeDomainEntry(entry) {
   if (schemeIdx !== -1) d = d.slice(schemeIdx + 3);
   const tailIdx = d.search(/[/?#]/);
   if (tailIdx !== -1) d = d.slice(0, tailIdx);
-  return d.replace(/^www\./, '');
+  // Browsers drop the default port from the address, so "youtube.com:443" can
+  // never equal a page host; treat it as the plain domain instead.
+  return d.replace(/^www\./, '').replace(/:(443|80)$/, '');
 }
 
 function isDomainExcluded(url, excludedDomains = []) {
