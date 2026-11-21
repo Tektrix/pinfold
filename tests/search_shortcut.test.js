@@ -83,3 +83,16 @@ test('slash still focuses search unless editing text', () => {
   assert.equal(page.press('/'), true);
   assert.equal(page.doc.activeElement, page.search);
 });
+
+for (const modalId of ['exportImportModal', 'previewModal']) {
+  test(`slash and Ctrl+K do nothing while ${modalId} is open`, () => {
+    const page = makeDashboard();
+    const modal = page.doc.getElementById(modalId);
+    modal.classList.contains = (cls) => cls !== 'hidden';
+
+    assert.equal(page.press('k', { ctrlKey: true }), false);
+    assert.equal(page.doc.activeElement, null);
+    assert.equal(page.press('/'), false);
+    assert.equal(page.doc.activeElement, null);
+  });
+}

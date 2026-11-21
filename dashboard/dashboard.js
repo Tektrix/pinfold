@@ -1481,7 +1481,9 @@ function bindEventListeners() {
           return;
         }
     const typingInField = e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
-    if (((e.key === '/' && !typingInField) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
+    const modalOpen = !document.getElementById('previewModal').classList.contains('hidden') ||
+                      !document.getElementById('exportImportModal').classList.contains('hidden');
+    if (!modalOpen && ((e.key === '/' && !typingInField) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
       e.preventDefault();
       searchInput.focus();
     } else if ((e.key === 'Delete' || (e.key === 'Backspace' && /Mac/i.test(navigator.platform))) &&
