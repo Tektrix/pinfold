@@ -116,3 +116,19 @@ test('dashboard search and sort controls have accessible names', () => {
     assert.ok(tag.includes('aria-label="'), `${id} has an aria-label`);
   }
 });
+
+test('every ARIA label and description reference points to an element on the same page', () => {
+  for (const page of ['options', 'dashboard']) {
+    const { html } = readPage(page);
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map(([, id]) => id));
+    const references = [...html.matchAll(/\saria-(labelledby|describedby)="([^"]+)"/g)];
+
+    assert.ok(references.length > 0, page + '.html has ARIA label or description references');
+
+    for (const [, attribute, value] of references) {
+      for (const id of value.trim().split(/\s+/)) {
+        assert.ok(ids.has(id), page + '.html aria-' + attribute + ' references missing id="' + id + '"');
+      }
+    }
+  }
+});
