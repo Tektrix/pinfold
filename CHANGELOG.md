@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Pressing `/` or Ctrl/Cmd+K no longer moves focus to the search box behind an open Export / Import or preview dialog.
 - Deleting the last sidebar item no longer leaves keyboard focus nowhere: it lands on "All Tabs", and the "All Tabs" and "Favorites" shortcuts are reachable with Tab and open with Enter or Space, like the sidebar tree items.
 - An excluded domain with its default port, like `youtube.com:443` or `example.com:80`, now matches its site. Other ports, like `localhost:3000`, still match exactly.
 - Importing with "Replace all" no longer deletes locked groups. They are kept, and the confirmation toast says how many.
