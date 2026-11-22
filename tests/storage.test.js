@@ -111,6 +111,102 @@ test('moveTab drops above an earlier row in the right place', async () => {
   assert.deepStrictEqual(order, ['a', 'd', 'b', 'c']);
 });
 
+test('moveTab refuses to move a tab out of a locked group and leaves groups unchanged', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      {
+        id: 'gLocked', title: 'Locked Group', createdAt: 1, locked: true, starred: false, tags: [],
+        tabs: [{ id: 't0', title: 'a', url: 'https://a', createdAt: 1 }]
+      },
+      {
+        id: 'gUnlocked', title: 'Unlocked Group', createdAt: 1, locked: false, starred: false, tags: [],
+        tabs: [{ id: 't1', title: 'b', url: 'https://b', createdAt: 1 }]
+      }
+    ]
+  });
+
+  const result = await PinfoldStorage.moveTab('gLocked', 'gUnlocked', 't0');
+  assert.strictEqual(result, false);
+
+  const groups = await PinfoldStorage.getGroups();
+  const lockedGroup = groups.find(g => g.id === 'gLocked');
+  const unlockedGroup = groups.find(g => g.id === 'gUnlocked');
+
+  assert.strictEqual(lockedGroup.tabs.length, 1);
+  assert.strictEqual(lockedGroup.tabs[0].id, 't0');
+  assert.strictEqual(unlockedGroup.tabs.length, 1);
+  assert.strictEqual(unlockedGroup.tabs[0].id, 't1');
+});
+
+test('moveTab allows reordering tabs inside a locked group', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      {
+        id: 'gLocked', title: 'Locked Group', createdAt: 1, locked: true, starred: false, tags: [],
+        tabs: [
+          { id: 't0', title: 'a', url: 'https://a', createdAt: 1 },
+          { id: 't1', title: 'b', url: 'https://b', createdAt: 1 },
+          { id: 't2', title: 'c', url: 'https://c', createdAt: 1 }
+        ]
+      }
+    ]
+  });
+
+  const result = await PinfoldStorage.moveTab('gLocked', 'gLocked', 't0', 't2', true);
+  assert.strictEqual(result, true);
+
+  const groups = await PinfoldStorage.getGroups();
+  const lockedGroup = groups.find(g => g.id === 'gLocked');
+  assert.deepStrictEqual(lockedGroup.tabs.map(t => t.id), ['t1', 't2', 't0']);
+});
+
+test('moveTab allows moving a tab from an unlocked group into a locked group', async () => {
+  store.load({
+    [STORAGE_KEYS.GROUPS]: [
+      {
+        id: 'gUnlocked', title: 'Unlocked Group', createdAt: 1, locked: false, starred: false, tags: [],
+        tabs: [{ id: 't0', title: 'a', url: 'https://a', createdAt: 1 }]
+      },
+      {
+        id: 'gLocked', title: 'Locked Group', createdAt: 1, locked: true, starred: false, tags: [],
+        tabs: [{ id: 't1', title: 'b', url: 'https://b', createdAt: 1 }]
+      }
+    ]
+  });
+
+  const result = await PinfoldStorage.moveTab('gUnlocked', 'gLocked', 't0');
+  assert.strictEqual(result, true);
+
+  const groups = await PinfoldStorage.getGroups();
+  const unlockedGroup = groups.find(g => g.id === 'gUnlocked');
+  const lockedGroup = groups.find(g => g.id === 'gLocked');
+
+  // gUnlocked should have 0 tabs and be pruned if not locked
+  assert.strictEqual(unlockedGroup, undefined);
+  assert.strictEqual(lockedGroup.tabs.length, 2);
+  assert.deepStrictEqual(lockedGroup.tabs.map(t => t.id), ['t1', 't0']);
+});
+
+test('moveTab returns false when source or target group does not exist, leaving groups unchanged', async () => {
+  const initialGroups = [
+    {
+      id: 'gExisting', title: 'Existing Group', createdAt: 1, locked: false, starred: false, tags: [],
+      tabs: [{ id: 't0', title: 'a', url: 'https://a', createdAt: 1 }]
+    }
+  ];
+  store.load({ [STORAGE_KEYS.GROUPS]: initialGroups });
+
+  assert.strictEqual(await PinfoldStorage.moveTab('gNonExistent', 'gExisting', 't0'), false);
+  assert.strictEqual(await PinfoldStorage.moveTab('gExisting', 'gNonExistent', 't0'), false);
+  assert.strictEqual(await PinfoldStorage.moveTab('gNonExistent', 'gNonExistent', 't0'), false);
+
+  const groups = await PinfoldStorage.getGroups();
+  assert.strictEqual(groups.length, 1);
+  assert.strictEqual(groups[0].id, 'gExisting');
+  assert.strictEqual(groups[0].tabs.length, 1);
+  assert.strictEqual(groups[0].tabs[0].id, 't0');
+});
+
 test('removeTabsFromGroup only removes the given tabs', async () => {
   seedGroup(['a', 'b', 'c']);
   await PinfoldStorage.removeTabsFromGroup('g1', ['t0', 't2']);
