@@ -1314,7 +1314,21 @@ function setupGroupDragDrop(listEl, targetGroupId) {
     const anchorTabId = targetRow ? targetRow.dataset.tabId : null;
     const placeAfter = targetRow ? targetRow.classList.contains('drag-over-bottom') : false;
 
-    await PinfoldStorage.moveTab(sourceGroupId, targetGroupId, tabId, anchorTabId, placeAfter);
+    document.querySelectorAll('.tab-entry-row').forEach(r => {
+      r.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    const moved = await PinfoldStorage.moveTab(sourceGroupId, targetGroupId, tabId, anchorTabId, placeAfter);
+    if (!moved) {
+      const sourceGroup = state.groups.find(g => g.id === sourceGroupId);
+      if (sourceGroup && sourceGroup.locked && sourceGroupId !== targetGroupId) {
+        showToast('Unlock this group before moving its tabs');
+      } else {
+        showToast('Could not move tab');
+      }
+      return;
+    }
+
     await refreshData();
     showToast('Tab moved');
   });

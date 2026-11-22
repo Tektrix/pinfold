@@ -345,6 +345,7 @@ const PinfoldStorage = {
       const sourceGroup = groups.find(g => g.id === sourceGroupId);
       const targetGroup = groups.find(g => g.id === targetGroupId);
       if (!sourceGroup || !targetGroup) return false;
+      if (sourceGroup !== targetGroup && sourceGroup.locked) return false;
       if (tabId === anchorTabId) return false;
 
       const tabIndex = sourceGroup.tabs.findIndex(t => t.id === tabId);
