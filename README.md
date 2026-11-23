@@ -1,22 +1,24 @@
 # Pinfold
 
-A private, local-first tab manager for Chromium browsers.
+A private, local-first tab manager for Chromium browsers. Free and open source.
 
-**Website:** [pinfold.page](https://pinfold.page) · **Privacy policy:** [pinfold.page/privacy](https://pinfold.page/privacy) · **Contact:** [info@pinfold.page](mailto:info@pinfold.page)
+[![Get Pinfold for Chrome](https://img.shields.io/badge/Chrome%20Web%20Store-Add%20to%20Chrome-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/pinfold-private-tab-manag/jicdahcnjncmdcblfmceljcobkgckope)
+[![Get Pinfold for Edge](https://img.shields.io/badge/Edge%20Add--ons-Get%20it%20for%20Edge-0078D7?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/pinfold-private-tab-man/bhmddgchhmnnckoifdapdlfdimegnnej)
 
-**Install:** [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/pinfold-private-tab-man/bhmddgchhmnnckoifdapdlfdimegnnej) · [Chrome Web Store](https://chromewebstore.google.com/detail/pinfold-private-tab-manag/jicdahcnjncmdcblfmceljcobkgckope) · [from source](#install)
+Pinfold closes the tabs you are not using and keeps them in a searchable, folder-organized list, so you can reopen them later. Everything is stored in your browser on your device. Nothing is sent anywhere.
 
-**Latest version:** [release notes](https://github.com/Tektrix/pinfold/releases/latest) · [changelog](CHANGELOG.md)
+- **Private by design.** No servers, no account, no analytics. Pinfold makes no network requests.
+- **Organized.** Save tabs straight into folders and subfolders, then search, sort, star and lock them.
+- **Lighter browser.** Close tabs you aren't using, or put them to sleep without closing them.
+- **Yours to keep.** Export and import OneTab-style text, Markdown or JSON at any time.
+
+Works in Chrome, Edge, Brave and other Chromium-based browsers. *(A pinfold is a pen for rounding up strays.)*
+
+**Website:** [pinfold.page](https://pinfold.page) · **Privacy policy:** [pinfold.page/privacy](https://pinfold.page/privacy) · **Latest version:** [release notes](https://github.com/Tektrix/pinfold/releases/latest) · [changelog](CHANGELOG.md) · **Contact:** [info@pinfold.page](mailto:info@pinfold.page)
 
 [![Latest release](https://img.shields.io/github/v/release/Tektrix/pinfold?label=release)](https://github.com/Tektrix/pinfold/releases/latest)
 [![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
-Pinfold closes the tabs you are not using and keeps them in a searchable, folder-organized list, so you can reopen them later. Everything is stored in your browser on your device. Nothing is sent anywhere.
-
-*(A pinfold is a pen for rounding up strays.)*
-
-Works in Chrome, Edge, Brave and other Chromium-based browsers.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="site/assets/cards-dark.png">
@@ -190,6 +192,8 @@ The website in `site/` is static and is served at [pinfold.page](https://pinfold
 ---
 
 ## Contributing
+
+If Pinfold is useful to you, a ⭐ on this repository helps other people find it.
 
 Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and the rules the code follows.
 
