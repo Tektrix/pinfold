@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-23
+
 ### Added
 
 - Save tabs straight into a folder: the popup has a "Save to" row with your three most recently used folders, "+ New folder" and "More…" for any other folder. It resets to "All tabs" each time the popup opens, and keyboard shortcuts still save without a folder.
@@ -105,7 +107,8 @@ First public, open-source release.
 - Strict extension Content Security Policy; incognito is not allowed.
 - Import hardening: imported items get fresh ids, URLs are limited to an allow-list of schemes, fields are type-coerced and size-limited, and ids are escaped in HTML.
 
-[Unreleased]: https://github.com/Tektrix/pinfold/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/Tektrix/pinfold/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/Tektrix/pinfold/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/Tektrix/pinfold/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Tektrix/pinfold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Tektrix/pinfold/releases/tag/v1.0.0

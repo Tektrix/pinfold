@@ -1,6 +1,6 @@
 # Pinfold store submission kit
 
-Copy-paste text for the **Chrome Web Store** (Developer Dashboard) and **Microsoft Edge Add-ons** (Partner Center), for Pinfold 1.0.2.
+Copy-paste text for the **Chrome Web Store** (Developer Dashboard) and **Microsoft Edge Add-ons** (Partner Center), for Pinfold 1.0.3.
 
 Store text fields don't render Markdown, so everything inside a fenced block is plain text you can paste as it is. Field names and limits come from the official docs listed in [Sources](#sources). Anything those docs don't state is marked **(unconfirmed)**. Check those items against the live dashboard.
 
@@ -46,7 +46,10 @@ Privacy is the starting point. Pinfold has no servers, no accounts, no analytics
 SAVE TABS
 - Save from the toolbar popup, the right-click menu, or keyboard shortcuts: Alt+Shift+D saves all tabs in the window, Alt+Shift+S saves the current tab, Alt+Shift+O opens the dashboard (Command+Shift on macOS).
 - Choose what to save: all tabs in the window, the current tab, tabs to the left, tabs to the right, or all tabs except the active one.
+- Choose where to save from the popup: your recent folders, a new folder, or any other folder.
 - Pinned tabs stay open by default. Domains you exclude are skipped by the multi-tab actions. Private (incognito) tabs are never saved.
+- Optional: save a page only once when the same address is open in several tabs.
+- Sleep other tabs: free their memory without closing them, using the browser's own tab sleeping. They stay in the tab bar and reload when you click them.
 - The toolbar icon shows how many tabs are saved.
 
 ORGANIZE AND FIND
@@ -54,12 +57,14 @@ ORGANIZE AND FIND
 - Search tab titles, addresses and domains. Search is a simple case-insensitive text match. Press / or Ctrl+K to jump to the search box.
 - Drag and drop to reorder tabs, move tabs between groups, and move groups into folders.
 - Star items to add them to Favorites, lock items so they cannot be deleted, and rename tabs and folders.
+- Copy all the links in a group at once, one per line.
+- The sidebar works from the keyboard, and screen readers announce messages and button names.
 - Sort by newest, oldest, most tabs, or name.
 - Restore one tab, a group, or everything. Restored tabs leave the list by default, or you can choose to keep them.
 - Dark, light or system theme.
 
 IMPORT AND EXPORT
-- Export and import OneTab-compatible text, Markdown, and JSON backups. Imports can be merged with your list or replace it.
+- Export and import OneTab-compatible text, Markdown, and JSON backups. Imports can be merged with your list or replace it, and you can pick a file instead of pasting it.
 - Backups contain groups and tabs but not the folder tree yet. After an import, groups appear at the top level.
 
 PAGE PREVIEWS (OPTIONAL, OFF BY DEFAULT)
@@ -102,14 +107,14 @@ The CWS Privacy tab has these sections: **Single purpose description**, **Permis
 ### Single purpose description
 
 ```
-Pinfold saves the user's open tabs into a local, folder-organized list so the tabs can be closed to free memory and reopened later. Every feature (saving, organizing, searching, restoring, importing and exporting that list, and optional thumbnails of saved tabs) serves this one purpose. All data stays in chrome.storage.local on the user's device.
+Pinfold saves the user's open tabs into a local, folder-organized list so the tabs can be closed to free memory and reopened later. Every feature (saving, organizing, searching, restoring, importing and exporting that list, optional thumbnails of saved tabs, and putting open tabs to sleep to free memory without closing them) serves this one purpose. All data stays in chrome.storage.local on the user's device.
 ```
 
 ### Permission justifications
 
 **`tabs`**
 ```
-Pinfold reads the URL, title and pinned state of the tabs the user chooses to save (from the toolbar popup, the right-click menu or a keyboard shortcut), stores them locally, and closes those tabs. It uses chrome.tabs.create to reopen saved tabs. chrome.tabs.update is used to return focus after saving and, only when the user has turned on page previews, to activate each tab briefly so it can be captured. tabs.onCreated/onUpdated are used only for the optional "Open Pinfold on New Tab" setting (off by default). Tab data is stored in chrome.storage.local and never transmitted.
+Pinfold reads the URL, title and pinned state of the tabs the user chooses to save (from the toolbar popup, the right-click menu or a keyboard shortcut), stores them locally, and closes those tabs. It uses chrome.tabs.create to reopen saved tabs, and chrome.tabs.discard when the user chooses "Sleep other tabs", to free the memory of the other tabs in the current window without closing them. chrome.tabs.update is used to return focus after saving and, only when the user has turned on page previews, to activate each tab briefly so it can be captured. tabs.onCreated/onUpdated are used only for the optional "Open Pinfold on New Tab" setting (off by default). Tab data is stored in chrome.storage.local and never transmitted.
 ```
 
 **`storage`**
@@ -265,21 +270,21 @@ A two-minute path that covers every permission. It is the same as the Edge notes
 ## 7. Steps only the owner can do
 
 **Before either store**
-1. Build the package with `npm run package`, which produces `dist/pinfold-1.0.2.zip`. Unzip it once and check that `manifest.json` sits at the root of the zip.
+1. Build the package with `npm run package`, which produces `dist/pinfold-1.0.3.zip`. Unzip it once and check that `manifest.json` sits at the root of the zip.
 
 **Chrome Web Store**
 1. Sign in to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole) with the Google account that will own the listing. Its email can't be changed later.
 2. Turn on 2-Step Verification for that Google account. The CWS program policies require it before publishing or updating.
 3. Accept the developer agreement and pay the **one-time registration fee**. The current docs don't state the amount. Google has historically charged **US$5**, so confirm on the registration screen.
 4. On the Account page, set the **publisher name**, **verify the contact email** (click the link sent to it), and answer the **trader / non-trader** declaration. A trader's name, address and phone number are shown publicly.
-5. Click **Add new item** and upload `dist/pinfold-1.0.2.zip`.
+5. Click **Add new item** and upload `dist/pinfold-1.0.3.zip`.
 6. Fill in **Store listing** (sections 1, 2 and 6), **Privacy** (section 3) and **Distribution** (Free, all regions, Public). Optionally fill in **Test instructions** (section 5).
 7. Click **Submit for review**. Deferred publishing is optional.
 
 **Microsoft Edge Add-ons** (no registration fee)
 1. Sign in to [Partner Center](https://partner.microsoft.com/dashboard/microsoftedge/public/login) with a personal Microsoft account (MSA), or create one with your GitHub account. Work or school accounts can't register.
 2. Complete the Edge Developer Account Registration: country/region (read-only afterwards), account type **Individual** (can't be changed later), publisher display name (50 characters max), contact info, and accept the App Developer Agreement. Wait for the confirmation email.
-3. Click **Create new extension** and upload `dist/pinfold-1.0.2.zip`.
+3. Click **Create new extension** and upload `dist/pinfold-1.0.3.zip`.
 4. Fill in Availability, Properties, Privacy and Store listings (section 4), click **Publish**, paste the **Notes for certification**, and click **Publish** again. Certification can take up to 7 business days.
 
 ---
