@@ -439,7 +439,7 @@ function createTreeGroupLeaf(group) {
     const domain = extractHostname(tab.url);
     iconHtml = `<span class="tree-node-favicon">${buildFaviconHtml(tab, domain)}</span>`;
   } else {
-    name = name || (folder ? `${folder.title}` : `${tabCount} tab${tabCount === 1 ? '' : 's'}`);
+    name = name || (folder ? `${folder.title}` : `${tabCount} ${pluralize(tabCount, 'tab')}`);
     iconHtml = `<span class="tree-node-circle">○</span>`;
   }
 
@@ -629,7 +629,7 @@ function renderGroupsList() {
     }).filter(Boolean);
 
     const statusBar = document.getElementById('searchStatusBar');
-    document.getElementById('searchStatusText').textContent = `Found ${totalMatches} tab${totalMatches === 1 ? '' : 's'} matching "${state.searchQuery}"`;
+    document.getElementById('searchStatusText').textContent = `Found ${totalMatches} ${pluralize(totalMatches, 'tab')} matching "${state.searchQuery}"`;
     statusBar.classList.remove('hidden');
   } else {
     document.getElementById('searchStatusBar').classList.add('hidden');
