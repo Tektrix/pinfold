@@ -1436,6 +1436,16 @@ async function handleRestoreAll() {
   );
 }
 
+async function copyExportText(text, successMessage) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    showToast('Failed to copy');
+    return;
+  }
+  showToast(successMessage);
+}
+
 function bindEventListeners() {
   // The quick nav items are plain divs, so give them the tree items' keyboard
   // activation; tabindex="0" in dashboard.html makes them reachable with Tab.
@@ -1625,8 +1635,7 @@ function bindEventListeners() {
 
   document.getElementById('btnCopyOneTab').addEventListener('click', async () => {
     const text = document.getElementById('exportOneTabTextarea').value;
-    await navigator.clipboard.writeText(text);
-    showToast('Copied OneTab text');
+    await copyExportText(text, 'Copied OneTab text');
   });
 
   document.getElementById('btnDownloadOneTab').addEventListener('click', () => {
@@ -1636,8 +1645,7 @@ function bindEventListeners() {
 
   document.getElementById('btnCopyMd').addEventListener('click', async () => {
     const text = document.getElementById('exportMdTextarea').value;
-    await navigator.clipboard.writeText(text);
-    showToast('Copied Markdown');
+    await copyExportText(text, 'Copied Markdown');
   });
 
   document.getElementById('btnDownloadMd').addEventListener('click', () => {
@@ -1647,8 +1655,7 @@ function bindEventListeners() {
 
   document.getElementById('btnCopyJson').addEventListener('click', async () => {
     const text = document.getElementById('exportJsonTextarea').value;
-    await navigator.clipboard.writeText(text);
-    showToast('Copied JSON');
+    await copyExportText(text, 'Copied JSON');
   });
 
   document.getElementById('btnDownloadJson').addEventListener('click', () => {
