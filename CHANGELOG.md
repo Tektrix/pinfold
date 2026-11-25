@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The Export dialog now reports clipboard failures for OneTab, Markdown and JSON.
+
 ## [1.0.3] - 2026-11-23
 
 ### Added
