@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The Export dialog now reports clipboard failures for OneTab, Markdown and JSON.
 - In Cards view, a card's Restore button now opens only that card's tab instead of every tab in its group.
+- The "saved just now" banner now disappears after 30 minutes, and the "… ago" times stay current while the dashboard is open. It redraws once a minute while visible, but never while you're typing or dragging.
 
 ## [1.0.3] - 2026-11-23
 

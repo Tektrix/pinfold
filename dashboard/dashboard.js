@@ -25,7 +25,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   await refreshData();
   bindEventListeners();
   setupStorageListener();
+  setupPeriodicRefresh();
 });
+
+const REDRAW_INTERVAL_MS = 60 * 1000;
+
+// True while the user is typing in a field or has a dropdown focused, so a redraw
+// doesn't wipe their text, cursor or selection.
+function isUserEditing() {
+  const el = document.activeElement;
+  if (!el) return false;
+  return el.isContentEditable === true || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+}
+
+// Redraw once a minute while visible, and when the tab becomes visible again, so the
+// "saved just now" banner expires and the "… ago" times stay current.
+// True between dragstart and dragend/drop. A redraw in the middle of a drag would
+// remove the element being dragged, so the drop would silently do nothing.
+let dragInProgress = false;
+
+function refreshTimeLabels() {
+  if (document.hidden || isUserEditing() || dragInProgress) return;
+  renderDashboard();
+}
+
+function setupPeriodicRefresh() {
+  setInterval(refreshTimeLabels, REDRAW_INTERVAL_MS);
+  document.addEventListener('visibilitychange', refreshTimeLabels);
+  document.addEventListener('dragstart', () => { dragInProgress = true; });
+  document.addEventListener('dragend', () => { dragInProgress = false; });
+  document.addEventListener('drop', () => { dragInProgress = false; });
+}
 
 function renderStaticIcons() {
   document.getElementById('mainLogo').innerHTML = SVG_ICONS.logo;
