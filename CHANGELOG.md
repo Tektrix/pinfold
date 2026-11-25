@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Import tab has a "Choose file…" button, so you can restore a backup without copying and pasting it. Files over 20 MB are refused with a message.
 - The sidebar folder tree works from the keyboard: Tab to an item, Enter or Space to open it, and the Left and Right arrows to collapse or expand a folder. The edit and delete buttons also appear when an item has keyboard focus.
 - Each tab group has a "Copy links" action that copies every URL in the group, one per line.
+- Cards view: a card's Restore button now opens only that card's tab instead of every tab in its group (#102).
 
 ### Fixed
 

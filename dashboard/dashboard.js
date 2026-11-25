@@ -1101,7 +1101,7 @@ function createTabCardElement(group, tab) {
 
   card.querySelector('.btn-card-restore').addEventListener('click', async (e) => {
     e.stopPropagation();
-    await handleRestoreGroup(group);
+    await handleOpenTab(group.id, tab, !state.settings?.keepTabOnRestore);
   });
 
   card.querySelector('.btn-card-delete').addEventListener('click', async (e) => {
