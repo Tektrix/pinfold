@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The Export dialog now reports clipboard failures for OneTab, Markdown and JSON.
+- In Cards view, a card's Restore button now opens only that card's tab instead of every tab in its group.
 
 ## [1.0.3] - 2026-11-23
 
