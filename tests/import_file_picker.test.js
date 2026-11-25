@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'dashboard.js'), 'utf8');
 
-function makeDashboard() {
+function makeDashboard(clipboard) {
   const elements = new Map();
   const toasts = [];
   const doc = {
@@ -38,6 +38,7 @@ function makeDashboard() {
   const sandbox = {
     console,
     document: doc,
+    navigator: { clipboard },
     window: { addEventListener() {} }
   };
   vm.runInNewContext(source + '\nbindEventListeners();', sandbox);
@@ -46,11 +47,34 @@ function makeDashboard() {
   };
   return {
     toasts,
+    getElement: doc.getElementById,
     btnChooseImportFile: doc.getElementById('btnChooseImportFile'),
     importFileInput: doc.getElementById('importFileInput'),
     importInputTextarea: doc.getElementById('importInputTextarea')
   };
 }
+
+test('all export Copy buttons report failures and preserve success feedback', async () => {
+  for (const [button, textarea, message] of [
+    ['btnCopyOneTab', 'exportOneTabTextarea', 'Copied OneTab text'],
+    ['btnCopyMd', 'exportMdTextarea', 'Copied Markdown'],
+    ['btnCopyJson', 'exportJsonTextarea', 'Copied JSON']
+  ]) {
+    for (const reject of [true, false]) {
+      const writes = [];
+      const page = makeDashboard({
+        async writeText(text) {
+          writes.push(text);
+          if (reject) throw new Error('Clipboard unavailable');
+        }
+      });
+      page.getElement(textarea).value = textarea;
+      await page.getElement(button).listeners.click();
+      assert.deepEqual(writes, [textarea]);
+      assert.deepEqual(page.toasts, [reject ? 'Failed to copy' : message]);
+    }
+  }
+});
 
 test('clicking Choose file triggers the hidden file input', () => {
   const page = makeDashboard();
