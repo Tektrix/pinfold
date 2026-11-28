@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Markdown import no longer cuts a group title that contains "(N tabs)" (for example "Reading (2 tabs) for later").
+- Markdown export and import now round-trip URLs that contain `%28` or `%29` exactly, as well as URLs with literal parentheses.
 - The Export dialog now reports clipboard failures for OneTab, Markdown and JSON.
 - In Cards view, a card's Restore button now opens only that card's tab instead of every tab in its group.
 - The "saved just now" banner now disappears after 30 minutes, and the "… ago" times stay current while the dashboard is open. It redraws once a minute while visible, but never while you're typing or dragging.

@@ -326,3 +326,21 @@ test('Markdown exports written before the Untitled heading still import', () => 
   const res = ExportImport.parseImport(md);
   assert.deepStrictEqual(res.groups.map(g => g.title), ['Tab Group 1']);
 });
+
+test('Markdown round trip keeps a group title containing "(N tabs)"', () => {
+  const src = [{ id: 'g1', title: 'Reading (2 tabs) for later', createdAt: 1720000000000, tabs: [{ id: 't1', title: 'A', url: 'https://a.com/' }] }];
+  const res = ExportImport.parseImport(ExportImport.exportToMarkdown(src));
+  assert.strictEqual(res.groups[0].title, 'Reading (2 tabs) for later');
+});
+
+test('Markdown round trip keeps URLs with literal parentheses and with %28 %29', () => {
+  const urls = [
+    'https://en.wikipedia.org/wiki/Mercury_(planet)',
+    'https://en.wikipedia.org/wiki/Mercury_%28planet%29',
+    'https://example.com/a%2528b%2529',
+    'https://example.com/x_(y)_%29'
+  ];
+  const src = [{ id: 'g1', title: 'G', createdAt: 1720000000000, tabs: urls.map((url, i) => ({ id: 't' + i, title: 'T' + i, url })) }];
+  const res = ExportImport.parseImport(ExportImport.exportToMarkdown(src));
+  assert.deepStrictEqual(res.groups[0].tabs.map(t => t.url), urls);
+});

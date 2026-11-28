@@ -59,7 +59,8 @@ const ExportImport = {
       (group.tabs || []).forEach((tab) => {
         // Backslashes and brackets are escaped so a bracket can't end the link text early; the importer undoes it.
         const title = String(tab.title || 'Untitled Tab').replace(/[\r\n]+/g, ' ').replace(/[\\\[\]]/g, '\\$&');
-        const url = String(tab.url || '#').replace(/\(/g, '%28').replace(/\)/g, '%29');
+        // A %28/%29 already in the URL gets one extra "25" so the importer can tell it from the escapes added here.
+        const url = String(tab.url || '#').replace(/%((?:25)*)(2[89])/gi, '%$125$2').replace(/\(/g, '%28').replace(/\)/g, '%29');
         md += `- [${title}](${url})\n`;
       });
 
@@ -226,7 +227,7 @@ const ExportImport = {
       }
     }
     if (end === -1) return null;
-    const url = line.slice(m[0].length, end).trim().replace(/%28/gi, '(').replace(/%29/gi, ')');
+    const url = line.slice(m[0].length, end).trim().replace(/%((?:25)*)(2[89])/gi, (m, p, d) => (p ? '%' + p.slice(2) + d : (d === '28' ? '(' : ')')));
     return { title: m[1].replace(/\\([\\\[\]])/g, '$1').trim(), url };
   },
 
@@ -257,7 +258,12 @@ const ExportImport = {
 
       if (trimmed.startsWith('## ') || trimmed.startsWith('### ')) {
         finalizeGroup();
-        const headerText = trimmed.replace(/^#+\s*/, '').replace(/\s*\(\d+\s*tabs?\).*$/i, '').trim();
+        const rawHeader = trimmed.replace(/^#+\s*/, '');
+        // Strip only the exporter's own trailing "(N tabs) - date"; a "(N tabs)" inside the title stays.
+        const ownSuffix = /\s*\(\d+\s*tabs?\)\s*-\s*[^()]*$/i;
+        const headerText = (ownSuffix.test(rawHeader)
+          ? rawHeader.replace(ownSuffix, '')
+          : rawHeader.replace(/\s*\(\d+\s*tabs?\).*$/i, '')).trim();
         // Exports write "Untitled" for a group whose name was never set; keep that group
         // untitled rather than naming it after the placeholder.
         currentGroup = headerText === 'Untitled'
